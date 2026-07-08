@@ -1,0 +1,21 @@
+# 📦 依存パッケージ（超巨大フォルダなので絶対Gitに上げちゃダメ！）
+node_modules/
+.pnpm-store/
+
+# 🛠️ Next.js やビルドの生成物（自動で作られるゴミファイル群）
+.next/
+out/
+build/
+dist/
+
+# 🔐 秘密の鍵（APIキーやパスワード。これを上げると世界ハックされるだし！）
+.env
+.env.local
+.env.*.local
+
+# 🍏 MacやWindowsが勝手に作るフォルダの見た目用キャッシュ（超不要！）
+.DS_Store
+Thumbs.db
+# 🛠️ ローカル環境用の Makefile を除外
+Makefile
+info.md
