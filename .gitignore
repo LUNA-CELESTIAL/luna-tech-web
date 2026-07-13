@@ -7,7 +7,7 @@ node_modules/
 out/
 build/
 dist/
-
+luna_pipeline/
 # 🔐 秘密の鍵（APIキーやパスワード。これを上げると世界ハックされるだし！）
 .env
 .env.local
@@ -19,3 +19,4 @@ Thumbs.db
 # 🛠️ ローカル環境用の Makefile を除外
 Makefile
 info.md
+push.md
