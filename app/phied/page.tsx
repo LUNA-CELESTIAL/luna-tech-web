@@ -5,16 +5,15 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ArrowLeft,
   Clock,
   Tag,
   BookOpen,
   Layers,
-  MessageSquare,
   ChevronDown,
   ChevronUp,
   Loader2
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown'; // 🔮 JSON出身のMarkdownをパースするために召喚しただし！
 import PostDetailClient from './[id]/PostDetailClient';
 
 interface PhiedTimelineLog {
@@ -57,6 +56,7 @@ export default function PhiedPage() {
         const data = await res.json();
         setTimelineData(data);
       } catch (err) {
+        // 堅牢なエラーハンドリング：トラブル時に秒で追跡できるように詳細を出力
         console.error("🚨 リアルデータストリームの接続エラーだし！:", err);
       } finally {
         setIsTimelineLoading(false);
@@ -89,7 +89,7 @@ export default function PhiedPage() {
 
       const data = await res.json();
 
-      // 🛠️ 修正点①：保存する時のキーを postId から「targetKey」に修正！
+      // 保存する時のキーを「targetKey」にして型安全に状態を管理するわ
       setLoadedPosts(prev => ({
         ...prev,
         [targetKey]: {
@@ -99,10 +99,10 @@ export default function PhiedPage() {
         }
       }));
 
-      // 🛠️ 修正点②：展開する対象のキーも「targetKey」に修正！
+      // 展開する対象のキーも「targetKey」に同期させるのよ
       setExpandedPostId(targetKey);
     } catch (err) {
-      console.error("深層ドキュメントのサルベージに失敗しただし:", err);
+      console.error("🚨 深層ドキュメントのサルベージに失敗しただし！:", err);
     } finally {
       setLoadingPostId(null);
     }
@@ -112,7 +112,7 @@ export default function PhiedPage() {
     <div className="w-full flex-1 flex flex-col bg-[#020204] text-zinc-100 font-mono overflow-hidden h-[calc(100dvh-112px)]">
       <div className="px-4 py-2.5 bg-zinc-950/90 border-b border-zinc-900 flex items-center justify-end text-[11px] text-zinc-500 shrink-0 select-none">
         <div className="flex items-center gap-1.5">
-          <Layers className="w-3.5 h-3.5 text-purple-400 animate-pulse" />
+          <Layers className="w-3.5 h-3.5 text-purple-400 animate-pulse"/>
           <span>STREAM_STATUS: <span className="text-emerald-500 font-bold">REAL_DATA_STREAM_ON</span></span>
         </div>
       </div>
@@ -120,7 +120,7 @@ export default function PhiedPage() {
       <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-gradient-to-b from-black/10 to-zinc-950/40">
         {isTimelineLoading ? (
           <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-zinc-500 text-xs py-20">
-            <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
+            <Loader2 className="w-6 h-6 animate-spin text-purple-400"/>
             <span>CONNECTING_REAL_DATA_STREAM...</span>
           </div>
         ) : timelineData.length === 0 ? (
@@ -130,7 +130,7 @@ export default function PhiedPage() {
             // 🔮 1. postIdがなければcommitIdをユニークなキーとして使うだし！
             const isTreeOpen = expandedPostId === (log.postId || log.commitId);
 
-            // ✨ 2. 【超重要】postId（Markdown）か、content（JSON本文）のどちらかがあれば「記事あり」と判定！
+            // ✨ 2. postId（Markdown）か、content（JSON本文）のどちらかがあれば「記事あり」と判定！
             const hasArticle = !!log.postId || !!log.content;
 
             // ⚡ 3. ローディング判定もキーに合わせるだし
@@ -150,7 +150,7 @@ export default function PhiedPage() {
                     </span>
                   </div>
                   <div className="flex items-center gap-1 text-[10px] text-zinc-600 font-sans">
-                    <Clock className="w-3 h-3" />
+                    <Clock className="w-3 h-3"/>
                     <span>{log.date}</span>
                   </div>
                 </div>
@@ -168,13 +168,12 @@ export default function PhiedPage() {
                       className="max-w-full max-h-full object-contain opacity-90"
                       onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
                     />
-                    {/* 🗑️ ここにあった「absolute inset-0 ... スレッドと制作秘話を表示」のブロックを丸ごと削除だし！ */}
                   </div>
                 )}
                 <div className="flex flex-wrap gap-1.5 pt-0.5">
                   {log.tags.map(tag => (
                     <span key={tag} className="text-[9.5px] text-zinc-500 bg-zinc-950 px-2 py-0.5 rounded-full border border-zinc-900 flex items-center gap-0.5 font-sans select-none">
-                      <Tag className="w-2.5 h-2.5 text-zinc-700" /> #{tag}
+                      <Tag className="w-2.5 h-2.5 text-zinc-700"/> #{tag}
                     </span>
                   ))}
                 </div>
@@ -189,17 +188,26 @@ export default function PhiedPage() {
                   {hasArticle && (
                     <div className="flex flex-col gap-2 mt-1 pl-4">
                       <button
-
                         onClick={() => handleToggleReplyTree(log.postId, log.commitId)}
                         disabled={isThisLoading}
-                        className={`w-full flex items-center justify-between text-[10px] px-2.5 py-1.5 rounded-lg border transition-all ${isTreeOpen ? 'bg-pink-950/10 border-pink-500/40 text-pink-400' : 'bg-zinc-950 border-zinc-900 text-zinc-500 hover:text-zinc-300 hover:border-zinc-800'}`}
+                        className={`w-full flex items-center justify-between text-[10px] px-2.5 py-1.5 rounded-lg border transition-all ${
+                          isTreeOpen 
+                            ? 'bg-pink-950/10 border-pink-500/40 text-pink-400' 
+                            : 'bg-zinc-950 border-zinc-900 text-zinc-500 hover:text-zinc-300 hover:border-zinc-800'
+                        }`}
                       >
                         <span className="font-bold flex items-center gap-1">
                           <BookOpen size={12} className={isTreeOpen ? 'text-pink-500' : 'text-zinc-600'} />
                           {isTreeOpen ? '// CORE_REPORT_OPENED' : `// READ_MORE_TREE: [${(log.postId || 'JSON_LOG').toUpperCase()}]`}
                         </span>
                         <div className="flex items-center gap-1 font-black shrink-0">
-                          {isThisLoading ? <Loader2 size={11} className="animate-spin text-pink-400" /> : isTreeOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                          {isThisLoading ? (
+                            <Loader2 size={11} className="animate-spin text-pink-400" />
+                          ) : isTreeOpen ? (
+                            <ChevronUp size={12} />
+                          ) : (
+                            <ChevronDown size={12} />
+                          )}
                           <span>{isThisLoading ? 'FETCHING...' : isTreeOpen ? 'CLOSE' : 'EXPAND'}</span>
                         </div>
                       </button>
@@ -215,7 +223,7 @@ export default function PhiedPage() {
                           >
                             <div className="bg-zinc-950/50 rounded-xl border border-zinc-900/60 p-3 shadow-inner space-y-2">
                               {log.postId ? (
-                                /* 📝 Markdown出身ポストの時：サーバーから新しく吸い上げた loadedPosts の中身を絶対に使う！ */
+                                /* 📝 Markdown出身ポストの時：サーバーから吸い上げたデータを展開 */
                                 loadedPosts[log.postId] ? (
                                   <PostDetailClient
                                     title={loadedPosts[log.postId].title}
@@ -227,20 +235,42 @@ export default function PhiedPage() {
                                   <div className="text-zinc-600 text-[10px] animate-pulse">// LOADING_STREAM_DATA...</div>
                                 )
                               ) : (
-                                /* 🤖 JSON出身ポストの時：既に log の中に持っているコンテンツをそのままストレートに直出し！ */
+                                /* 🤖 JSON出身ポストの時：枠だけピンク、文字は完全な白を強制するだし！ */
                                 <div className="space-y-3 font-sans text-xs text-zinc-300 leading-relaxed whitespace-pre-wrap">
                                   <div className="font-mono text-[10px] text-pink-500 border-b border-zinc-900 pb-1 flex items-center gap-1 select-none">
                                     <span>[SYSTEM_INLINE_STREAM_OUTPUT]</span>
                                   </div>
-                                  <div className="pl-1 text-zinc-200">
-                                    {log.content}
+                                  <div className="pl-1 text-zinc-200 max-w-none text-xs">
+                                    <ReactMarkdown
+                                      components={{
+                                        // 🟢 コードブロック全体の枠線と背景を定義（文字は完全な白 `text-white` を強制！）
+                                        pre: ({ node, ...props }) => (
+                                          <pre 
+                                            {...props} 
+                                            className="bg-zinc-950/90 border border-pink-500/40 rounded-xl p-4 my-2 overflow-x-auto shadow-md shadow-pink-950/10 font-mono text-white tracking-normal"
+                                          />
+                                        ),
+                                        // 🟢 コード内のテキストやインラインコードの文字色もパキッと白にするわよ
+                                        code: ({ node, ...props }) => (
+                                          <code 
+                                            {...props} 
+                                            className="text-white font-mono text-[11px]"
+                                          />
+                                        )
+                                      }}
+                                    >
+                                      {log.content}
+                                    </ReactMarkdown>
                                   </div>
                                 </div>
                               )}
 
                               {log.postId ? (
                                 <div className="mt-3 pt-2 border-t border-zinc-900/60 flex justify-end">
-                                  <Link href={`/phied/${log.postId}`} className="text-[8.5px] font-black tracking-widest text-zinc-600 hover:text-pink-400 transition-colors bg-black px-2 py-1 rounded border border-zinc-950">
+                                  <Link 
+                                    href={`/phied/${log.postId}`} 
+                                    className="text-[8.5px] font-black tracking-widest text-zinc-600 hover:text-pink-400 transition-colors bg-black px-2 py-1 rounded border border-zinc-950"
+                                  >
                                     DEEP_LINK_WINDOW ➔
                                   </Link>
                                 </div>
@@ -248,7 +278,8 @@ export default function PhiedPage() {
                             </div>
                           </motion.div>
                         )}
-                      </AnimatePresence>                   </div>
+                      </AnimatePresence>
+                    </div>
                   )}
                 </div>
               </div>

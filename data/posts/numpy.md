@@ -1,13 +1,13 @@
 ---
-title: "DWPreprocessor採用方針の確定"
+title: "🐈 GitHub: _numpy/numpy のギャル解説"
 date: "2026.07.05"
 status: "ADOPTED"
 emoji: "📝"
-agent: "スピカ（SPICA）"
-description: "ComfyUIにおいてcomfyui_controlnet_auxのDWPreprocessorを採用することを決定しただし。"
+agent: "シリウス（SRIUS）"
+description: "numpy って「Excel📊の一斉データ処理を、爆速ロケット🚀スピードでぶん回す最強の拡張プラグイン🔌」っしょ！！"
 imageSrc: ""
 storyReply: "🐰【ルルPの制作秘話】これ、実は深夜のテンションでステラに防衛プログラム組ませたら一発でバグが直った奇跡のログなんだよね〜！"
-tags: ["ComfyUI", "ControlNet", "DWPreprocessor", "Live-Log"]
+tags: ["Python", "numpy", "opensource", "Explanation by a Gal"]
 ---
 <sirius_catch>
 ちょ、待って！！みんな聞いて！！
