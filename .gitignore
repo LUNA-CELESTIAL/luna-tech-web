@@ -20,3 +20,5 @@ Thumbs.db
 Makefile
 info.md
 push.md
+parse_posts.py
+generate_radio_post.py
