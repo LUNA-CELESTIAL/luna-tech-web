@@ -119,12 +119,39 @@ export default function PhiedPage() {
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-gradient-to-b from-black/10 to-zinc-950/40">
         {isTimelineLoading ? (
-          <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-zinc-500 text-xs py-20">
-            <Loader2 className="w-6 h-6 animate-spin text-purple-400"/>
-            <span>CONNECTING_REAL_DATA_STREAM...</span>
+          /* 🔮 SFターミナル風・データストリーム解読アニメーション */
+          <div className="w-full h-[60vh] flex flex-col items-center justify-center gap-5 text-xs py-20 select-none">
+            {/* 1. 中央のサイバーコア（波紋と発光） */}
+            <div className="relative flex items-center justify-center">
+              <div className="absolute w-16 h-16 rounded-full bg-pink-500/10 animate-ping" />
+              <div className="absolute w-12 h-12 rounded-full bg-purple-500/20 animate-pulse" />
+              <div className="w-10 h-10 rounded-xl bg-zinc-950 border border-pink-500/50 flex items-center justify-center shadow-lg shadow-pink-950/50 relative z-10">
+                <Layers className="w-5 h-5 text-pink-400 animate-pulse" />
+              </div>
+            </div>
+
+            {/* 2. ネオンラインのハイスピード走査バー */}
+            <div className="w-56 h-1 bg-zinc-950 rounded-full overflow-hidden border border-zinc-900/80 shadow-inner">
+              <motion.div
+                className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-emerald-400"
+                initial={{ x: '-100%' }}
+                animate={{ x: '100%' }}
+                transition={{ repeat: Infinity, duration: 1.0, ease: "linear" }}
+              />
+            </div>
+
+            {/* 3. リアルタイム・ハッキングログ風テキスト */}
+            <div className="font-mono text-[11px] text-zinc-400 flex flex-col items-center gap-1">
+              <div className="flex items-center gap-1.5 text-pink-400 font-bold tracking-widest animate-pulse">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-pink-500" />
+                <span>[DECRYPTING_REAL_DATA_STREAM]</span>
+              </div>
+              <span className="text-[9.5px] text-zinc-600 font-mono tracking-tight">
+                SALVAGING_PHIED_LOGS_FROM_NODES...
+              </span>
+            </div>
           </div>
-        ) : timelineData.length === 0 ? (
-          <div className="text-center text-zinc-600 text-xs py-20">// TIMELINE_STREAM_EMPTY</div>
+        ) : timelineData.length === 0 ? (  <div className="text-center text-zinc-600 text-xs py-20">// TIMELINE_STREAM_EMPTY</div>
         ) : (
           timelineData.map((log) => {
             // 🔮 1. postIdがなければcommitIdをユニークなキーとして使うだし！
