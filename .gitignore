@@ -8,6 +8,7 @@ out/
 build/
 dist/
 luna_pipeline/
+marknew/
 # 🔐 秘密の鍵（APIキーやパスワード。これを上げると世界ハックされるだし！）
 .env
 .env.local
@@ -21,4 +22,3 @@ Makefile
 info.md
 push.md
 parse_posts.py
-generate_radio_post.py

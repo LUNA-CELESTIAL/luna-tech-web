@@ -1,5 +1,148 @@
 [
   {
+    "id": "00430",
+    "src": "/images/ComfyUI_00430_.png",
+    "title": "Vibrant Color Chaos",
+    "agent": "スピカ（SUPICA）",
+    "prompt":"score_9, score_8_up, score_7_up, source_anime, rating_safe, 1girl, solo, cute, (kawaii:1.2), twintails, purple_hair, pink_eyes, blush, smile, (detailed anime face:1.2), (clean lineart, sharp outlines:1.2), (modern anime visual, cel shading:1.2), (oversized cyber hoodie:1.3), (rabbit ear hood:1.2), (baggy sleeves:1.2), techwear, mechanical buckles, acrylic cyber visor, geometric neon patterns, matte black and bright accents, cowboy shot, standing, looking at viewer, futuristic clean city, depth of field",
+    "aspect": "aspect-square"
+  }, {
+    "id": "00406",
+    "src": "/images/ComfyUI_00406_.png",
+    "title": "Neon Rain Cyberpunk",
+    "agent": "スピカ（SUPICA）",
+    "prompt":"1girl, solo, cute, (kawaii:1.2), long_hair, twintails, purple_hair, pink_eyes, rabbit_ears, animal_ears, blush, smile, cyberpunk_techwear, gothic_dress, black_jacket, long_sleeves, sleeves_past_wrists, glowing_lines, neon_light_strips, circuits, thigh_strap, cowboy_shot, standing, looking_at_viewer, cyberpunk_city, night, neon_lights, rain, holographic_signs, cinematic_lighting, soft_lighting, intricate_fabric_details, highly_detailed",
+    "aspect": "aspect-square"
+  }, 
+  {
+    "id": "00362",
+    "src": "/images/ComfyUI_00362_.png",
+    "title": "Galactic Wa-Lolita Charm",
+    "agent": "スピカ（SUPICA）",
+    "prompt":"1girl, solo, long_hair, very_long_hair, grey_hair, blue_eyes, looking_at_viewer, smile, blush, hair_flower, hair_ornament, hair_ribbon, braid, japanese_clothes, (wa_lolita, kimono_dress:1.3), blue_kimono, wide_sleeves, frilled_sleeves, obi, sash, floral_print, (blue_skirt, pleated_skirt, frilled_skirt:1.2), standing, hand_up, cowboy_shot, (masterpiece, best quality, sharp focus, clean lineart:1.2)",
+    "aspect": "aspect-square"
+  },   
+  {
+    "id": "00361",
+    "src": "/images/ComfyUI_00361_.png",
+    "title": "Prism Aurora Melody",
+    "agent": "スピカ（SUPICA）",
+    "prompt":"1girl, solo, long_hair, very_long_hair, grey_hair, blue_eyes, looking_at_viewer, smile, blush, hair_flower, hair_ornament, hair_ribbon, braid, japanese_clothes, (wa_lolita, kimono_dress:1.3), blue_kimono, wide_sleeves, frilled_sleeves, obi, sash, floral_print, (blue_skirt, pleated_skirt, frilled_skirt:1.2), standing, hand_up, cowboy_shot, (masterpiece, best quality, sharp focus, clean lineart:1.2)",
+    "aspect": "aspect-square"
+  }, 
+  {
+    "id": "00360",
+    "src": "/images/ComfyUI_00360_.png",
+    "title": "Sunset Ribbon Eclipse",
+    "agent": "スピカ（SUPICA）",
+    "prompt":"1girl, solo, long_hair, very_long_hair, grey_hair, blue_eyes, looking_at_viewer, smile, blush, hair_flower, hair_ornament, hair_ribbon, braid, japanese_clothes, (wa_lolita, kimono_dress:1.3), blue_kimono, wide_sleeves, frilled_sleeves, obi, sash, floral_print, (blue_skirt, pleated_skirt, frilled_skirt:1.2), standing, hand_up, cowboy_shot, (masterpiece, best quality, sharp focus, clean lineart:1.2)",
+    "aspect": "aspect-square"
+  },   
+  {
+    "id": "00359",
+    "src": "/images/ComfyUI_00359_.png",
+    "title": "Twilight Looking Down",
+    "agent": "スピカ（SUPICA）",
+    "prompt":"1girl, solo, long_hair, very_long_hair, grey_hair, blue_eyes, looking_at_viewer, smile, blush, hair_flower, hair_ornament, hair_ribbon, braid, japanese_clothes, (wa_lolita, kimono_dress:1.3), blue_kimono, wide_sleeves, frilled_sleeves, obi, sash, floral_print, (blue_skirt, pleated_skirt, frilled_skirt:1.2), standing, hand_up, cowboy_shot, (masterpiece, best quality, sharp focus, clean lineart:1.2)",
+    "aspect": "aspect-square"
+  },   
+  {
+    "id": "00358",
+    "src": "/images/ComfyUI_00358_.png",
+    "title": "Starlight Butterfly Dance",
+    "agent": "スピカ（SUPICA）",
+    "prompt":"1girl, solo, long_hair, very_long_hair, grey_hair, blue_eyes, looking_at_viewer, smile, blush, hair_flower, hair_ornament, hair_ribbon, braid, japanese_clothes, (wa_lolita, kimono_dress:1.3), blue_kimono, wide_sleeves, frilled_sleeves, obi, sash, floral_print, (blue_skirt, pleated_skirt, frilled_skirt:1.2), standing, hand_up, cowboy_shot, (masterpiece, best quality, sharp focus, clean lineart:1.2)",
+    "aspect": "aspect-square"
+  }, 
+  {
+    "id": "00357",
+    "src": "/images/ComfyUI_00357_.png",
+    "title": "Vibrant Kimono Overture",
+    "agent": "スピカ（SUPICA）",
+    "prompt":"1girl, solo, long_hair, very_long_hair, grey_hair, blue_eyes, looking_at_viewer, smile, blush, hair_flower, hair_ornament, hair_ribbon, braid, japanese_clothes, (wa_lolita, kimono_dress:1.3), blue_kimono, wide_sleeves, frilled_sleeves, obi, sash, floral_print, (blue_skirt, pleated_skirt, frilled_skirt:1.2), standing, hand_up, cowboy_shot, (masterpiece, best quality, sharp focus, clean lineart:1.2)",
+    "aspect": "aspect-square"
+  },   
+  {
+    "id": "00356",
+    "src": "/images/ComfyUI_00356_.png",
+    "title": "Cosmic Ribbon Splendor",
+    "agent": "スピカ（SUPICA）",
+    "prompt":"1girl, solo, long_hair, very_long_hair, grey_hair, blue_eyes, looking_at_viewer, smile, blush, hair_flower, hair_ornament, hair_ribbon, braid, japanese_clothes, (wa_lolita, kimono_dress:1.3), blue_kimono, wide_sleeves, frilled_sleeves, obi, sash, floral_print, (blue_skirt, pleated_skirt, frilled_skirt:1.2), standing, hand_up, cowboy_shot, (masterpiece, best quality, sharp focus, clean lineart:1.2)",
+    "aspect": "aspect-square"
+  },   
+  {
+    "id": "00355",
+    "src": "/images/ComfyUI_00355_.png",
+    "title": "Kaleidoscope Burst",
+    "agent": "スピカ（SUPICA）",
+    "prompt":"1girl, solo, long_hair, very_long_hair, grey_hair, blue_eyes, looking_at_viewer, smile, blush, hair_flower, hair_ornament, hair_ribbon, braid, japanese_clothes, (wa_lolita, kimono_dress:1.3), blue_kimono, wide_sleeves, frilled_sleeves, obi, sash, floral_print, (blue_skirt, pleated_skirt, frilled_skirt:1.2), standing, hand_up, cowboy_shot, (masterpiece, best quality, sharp focus, clean lineart:1.2)",
+    "aspect": "aspect-square"
+  }, 
+  {
+    "id": "00338",
+    "src": "/images/ComfyUI_00338_.png",
+    "title": "Sunset Horizon Wish",
+    "agent": "シリウス（SIRIUS）",
+    "prompt":"score_9, score_8_up, score_7_up, source_anime, rating_safe, (kawaii, cute:1.2), detailed face, charming, 1girl, cute black bunny ears, cyan twin-tails hair with ribbons, holding a magical glowing wand, magical girl dress, dramatic sunset sky, glowing clouds, floating stars, dreamy atmospheric lighting, (clean lineart, sharp outlines:1.2), (modern anime visual, cel shading:1.1), masterpiece, best quality",
+    "aspect": "aspect-square"
+  }, 
+  {
+    "id": "00337",
+    "src": "/images/ComfyUI_00337_.png",
+    "title": "Astra Nova Sparkle",
+    "agent": "シリウス（SIRIUS）",
+    "prompt":"score_9, score_8_up, score_7_up, source_anime, rating_safe, (kawaii, cute:1.2), detailed face, charming, 1girl, cute black bunny ears, cyan twin-tails hair with ribbons, holding a magical glowing wand, magical girl dress, dramatic sunset sky, glowing clouds, floating stars, dreamy atmospheric lighting, (clean lineart, sharp outlines:1.2), (modern anime visual, cel shading:1.1), masterpiece, best quality",
+    "aspect": "aspect-square"
+  }, 
+  {
+    "id": "00336",
+    "src": "/images/ComfyUI_00336_.png",
+    "title": "Prism Aurora Melody",
+    "agent": "シリウス（SIRIUS）",
+    "prompt":"score_9, score_8_up, score_7_up, source_anime, rating_safe, (kawaii, cute:1.2), detailed face, charming, 1girl, cute black bunny ears, cyan twin-tails hair with ribbons, holding a magical glowing wand, magical girl dress, dramatic sunset sky, glowing clouds, floating stars, dreamy atmospheric lighting, (clean lineart, sharp outlines:1.2), (modern anime visual, cel shading:1.1), masterpiece, best quality",
+    "aspect": "aspect-square"
+  },
+  {
+    "id": "00335",
+    "src": "/images/ComfyUI_00335_.png",
+    "title": "Starlight Sentinel",
+    "agent": "シリウス（SIRIUS）",
+    "prompt":"score_9, score_8_up, score_7_up, source_anime, rating_safe, (kawaii, cute:1.2), detailed face, charming, 1girl, cute black bunny ears, cyan twin-tails hair with ribbons, holding a magical glowing wand, magical girl dress, dramatic sunset sky, glowing clouds, floating stars, dreamy atmospheric lighting, (clean lineart, sharp outlines:1.2), (modern anime visual, cel shading:1.1), masterpiece, best quality",
+    "aspect": "aspect-square"
+  },
+  {
+    "id": "00334",
+    "src": "/images/ComfyUI_00334_.png",
+    "title": "Twilight Bunny Wish",
+    "agent": "シリウス（SIRIUS）",
+    "prompt":"score_9, score_8_up, score_7_up, source_anime, rating_safe, (kawaii, cute:1.2), detailed face, charming, 1girl, cute bunny ears, twin-tails hair adorned with tiny glowing stars and crystal ribbons, wearing a fluffy pastel lollipop dress with cloud patterns, holding a magical glowing wand, floating on a sea of soft clouds, dreamy pastel coloring, staring eyes, (clean lineart, sharp outlines:1.2), (modern anime visual, cel shading:1.1), soft volumetric lighting, beautiful key visual, (masterpiece:1.1)",
+    "aspect": "aspect-square"
+  },
+  {
+    "id": "00333",
+    "src": "/images/ComfyUI_00333_.png",
+    "title": "Pocket Stardust Magic",
+    "agent": "シリウス（SIRIUS）",
+    "prompt":"score_9, score_8_up, score_7_up, source_anime, rating_safe, (kawaii, cute:1.2), detailed face, charming, 1girl, cute bunny ears, twin-tails hair adorned with tiny glowing stars and crystal ribbons, wearing a fluffy pastel lollipop dress with cloud patterns, holding a magical glowing wand, floating on a sea of soft clouds, dreamy pastel coloring, staring eyes, (clean lineart, sharp outlines:1.2), (modern anime visual, cel shading:1.1), soft volumetric lighting, beautiful key visual, (masterpiece:1.1)",
+    "aspect": "aspect-square"
+  },
+  {
+    "id": "00332",
+    "src": "/images/ComfyUI_00332_.png",
+    "title": "Twinkle Voice Echoes",
+    "agent": "シリウス（SIRIUS）",
+    "prompt":"score_9, score_8_up, score_7_up, source_anime, rating_safe, (kawaii, cute:1.2), detailed face, charming, 1girl, cute bunny ears, twin-tails hair adorned with tiny glowing stars and crystal ribbons, wearing a fluffy pastel lollipop dress with cloud patterns, holding a magical glowing wand, floating on a sea of soft clouds, dreamy pastel coloring, staring eyes, (clean lineart, sharp outlines:1.2), (modern anime visual, cel shading:1.1), soft volumetric lighting, beautiful key visual, (masterpiece:1.1)",
+    "aspect": "aspect-square"
+  },
+  {
+    "id": "00331",
+    "src": "/images/ComfyUI_00331_.png",
+    "title": "Starlight Inversion",
+    "agent": "シリウス（SIRIUS）",
+    "prompt":"score_9, score_8_up, score_7_up, source_anime, rating_safe, (kawaii, cute:1.2), detailed face, charming, 1girl, cute bunny ears, twin-tails hair adorned with tiny glowing stars and crystal ribbons, wearing a fluffy pastel lollipop dress with cloud patterns, holding a magical glowing wand, floating on a sea of soft clouds, dreamy pastel coloring, staring eyes, (clean lineart, sharp outlines:1.2), (modern anime visual, cel shading:1.1), soft volumetric lighting, beautiful key visual, (masterpiece:1.1)",
+    "aspect": "aspect-square"
+  },
+  {
     "id": "00050",
     "src": "/images/ComfyUI_00050_.png",
     "title": "Dify / Neon Dreamer's Heart",
