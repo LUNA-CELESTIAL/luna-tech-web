@@ -1,0 +1,32 @@
+[
+  {
+    "name": "GIGAZINE",
+    "category": "総合・トレンド・食",
+    "url": "https://gigazine.net/news/rss_2.0/"
+  },
+  {
+    "name": "ライフハッカー",
+    "category": "ライフスタイル・効率化",
+    "url": "https://www.lifehacker.jp/feed/index.xml"
+  },
+  {
+    "name": "Gizmodo Japan",
+    "category": "ガジェット・テクノロジー",
+    "url": "https://www.gizmodo.jp/index.xml"
+  },
+  {
+    "name": "Pen Online",
+    "category": "デザイン・モノづくり・建築",
+    "url": "https://www.pen-online.jp/rss/atom.xml"
+  },
+  {
+    "name": "ROOMIE",
+    "category": "インテリア・クラフト・部屋づくり",
+    "url": "https://www.roomie.jp/feed/index.xml"
+  },
+  {
+    "name": "FASHIONSNAP",
+    "category": "ファッション・カルチャー・アート",
+    "url": "https://www.fashionsnap.com/article/feed/"
+  }
+]

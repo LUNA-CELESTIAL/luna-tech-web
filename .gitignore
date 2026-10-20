@@ -10,7 +10,6 @@ dist/
 luna_pipeline/
 marknew/
 api/
-scripts/
 # 🔐 秘密の鍵（APIキーやパスワード。これを上げると世界ハックされるだし！）
 .env
 .env.local

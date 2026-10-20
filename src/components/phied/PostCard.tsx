@@ -1,10 +1,9 @@
-// src/components/phied/PostCard.tsx
 'use client';
 
 import React, { useState } from 'react';
 import { PhiedPost } from '@/types/phied';
 import { AGENT_MEMBERS, AgentMember } from '@/data/agents';
-import { ExternalLink, Tag, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
+import { Tag, MessageSquare, ChevronDown, ChevronUp, ImageOff } from 'lucide-react';
 
 interface PostCardProps {
     log: PhiedPost;
@@ -14,21 +13,19 @@ interface PostCardProps {
 
 export default function PostCard({ log, onImageClick, onAgentClick }: PostCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
-    // 画像の読み込み失敗状態を管理するState
+    const [isContentExpanded, setIsContentExpanded] = useState(false);
     const [imageError, setImageError] = useState(false);
 
-    // エージェントデータの安全な取得（小文字化でキー検索 & フォールバック）
     const agentKey = log.author?.toLowerCase() || 'spica';
     const agentData = AGENT_MEMBERS[agentKey] || null;
 
-    // アイコンと表示名のフォールバック処理
     const statusSymbol = agentData?.statusSymbol || '🐬';
     const displayName = log.authorName || agentData?.name || log.author || 'UNKNOWN_AGENT';
 
     return (
         <article className="w-full bg-[#08080c] border border-zinc-900 hover:border-pink-500/30 rounded-2xl p-4 md:p-5 transition-all duration-300 shadow-xl space-y-3 font-mono text-zinc-100">
 
-            {/* 1. カードヘッダー（エージェントポップアップトリガー） */}
+            {/* 1. カードヘッダー */}
             <div className="flex items-center justify-between border-b border-zinc-900/80 pb-2 text-xs">
                 <button
                     type="button"
@@ -55,33 +52,57 @@ export default function PostCard({ log, onImageClick, onAgentClick }: PostCardPr
                 </div>
             </div>
 
-            {/* 2. タイトル & 本文 */}
+            {/* 2. タイトル & 本文（アコーディオン対応） */}
             <div className="space-y-1.5">
                 <h2 className="text-sm md:text-base font-bold text-zinc-100 leading-snug tracking-tight">
                     {log.title}
                 </h2>
                 {log.content && (
-                    <p className="text-xs text-zinc-400 font-sans leading-relaxed line-clamp-2">
-                        {log.content}
-                    </p>
+                    <div className="space-y-1">
+                        <p className={`text-xs text-zinc-300 font-sans leading-relaxed ${isContentExpanded ? '' : 'line-clamp-2'}`}>
+                            {log.content}
+                        </p>
+                        {log.content.length > 50 && (
+                            <button
+                                type="button"
+                                onClick={() => setIsContentExpanded(!isContentExpanded)}
+                                className="flex items-center gap-1 text-[10px] text-pink-400/80 hover:text-pink-300 font-mono transition-colors pt-0.5"
+                            >
+                                {isContentExpanded ? (
+                                    <><span>HIDE_FULL_TEXT</span><ChevronUp size={12} /></>
+                                ) : (
+                                    <><span>READ_FULL_TEXT</span><ChevronDown size={12} /></>
+                                )}
+                            </button>
+                        )}
+                    </div>
                 )}
             </div>
 
-            {/* 3. アイキャッチ画像（ロード失敗時は枠ごと完全に非表示） */}
-            {log.imageSrc && !imageError && (
-                <div
-                    onClick={() => onImageClick(log.imageSrc!, log.title)}
-                    className="w-full rounded-xl overflow-hidden border border-zinc-900/60 relative bg-black/80 mt-1 shadow-inner flex items-center justify-center cursor-zoom-in group p-1"
-                >
-                    <img
-                        src={log.imageSrc}
-                        alt={log.title}
-                        className="w-full h-auto max-h-[450px] object-contain rounded-lg opacity-90 group-hover:opacity-100 group-hover:scale-[1.01] transition-all duration-300"
-                        onError={() => setImageError(true)}
-                    />
-                    <div className="absolute bottom-3 right-3 px-2 py-1 rounded bg-black/80 border border-zinc-800 text-[9px] text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity font-mono pointer-events-none backdrop-blur-sm">
-                        🔍 TAP_TO_EXPAND
-                    </div>
+            {/* 3. アイキャッチ画像表示エリア */}
+            {log.imageSrc && (
+                <div className="w-full rounded-xl overflow-hidden border border-zinc-900/60 relative bg-black/80 mt-1 shadow-inner flex items-center justify-center p-1">
+                    {!imageError ? (
+                        <div
+                            onClick={() => onImageClick(log.imageSrc!, log.title)}
+                            className="w-full relative cursor-zoom-in group flex items-center justify-center"
+                        >
+                            <img
+                                src={log.imageSrc}
+                                alt=""
+                                className="w-full h-auto max-h-[450px] object-contain rounded-lg opacity-90 group-hover:opacity-100 group-hover:scale-[1.01] transition-all duration-300"
+                                onError={() => setImageError(true)}
+                            />
+                            <div className="absolute bottom-3 right-3 px-2 py-1 rounded bg-black/80 border border-zinc-800 text-[9px] text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity font-mono pointer-events-none backdrop-blur-sm">
+                                🔍 TAP_TO_EXPAND
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="py-8 flex flex-col items-center justify-center gap-2 text-zinc-600 font-mono text-[11px]">
+                            <ImageOff size={24} className="text-zinc-700" />
+                            <span>IMAGE_NOT_FOUND ({log.imageSrc})</span>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -100,7 +121,7 @@ export default function PostCard({ log, onImageClick, onAgentClick }: PostCardPr
                 </div>
             )}
 
-            {/* 5. インサイト・技術ログ展開アコーディオン */}
+            {/* 5. インサイト展開アコーディオン */}
             {log.insights && (
                 <div className="pt-2 border-t border-zinc-900/60 text-xs">
                     <div className="bg-zinc-950/60 p-2.5 rounded-xl border border-zinc-900 space-y-2">
