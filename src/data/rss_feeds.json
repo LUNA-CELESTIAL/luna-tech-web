@@ -15,18 +15,23 @@
     "url": "https://www.gizmodo.jp/index.xml"
   },
   {
-    "name": "Pen Online",
-    "category": "デザイン・モノづくり・建築",
-    "url": "https://www.pen-online.jp/rss/atom.xml"
-  },
-  {
     "name": "ROOMIE",
     "category": "インテリア・クラフト・部屋づくり",
-    "url": "https://www.roomie.jp/feed/index.xml"
+    "url": "https://www.roomie.jp/feed/"
   },
   {
     "name": "FASHIONSNAP",
-    "category": "ファッション・カルチャー・アート",
-    "url": "https://www.fashionsnap.com/article/feed/"
+    "category": "ファッション・カルチャー",
+    "url": "https://www.fashionsnap.com/rss.xml"
+  },
+  {
+    "name": "WWD JAPAN",
+    "category": "ファッション・ビジネス",
+    "url": "https://www.wwdjapan.com/feed"
+  },
+  {
+    "name": "Fashion Press",
+    "category": "トレンド・ファッション・新作",
+    "url": "https://www.fashion-press.net/news/line.rss"
   }
 ]

@@ -89,29 +89,31 @@ def load_phied_logs() -> list:
     """既存の phied.json を読み込む"""
     if not PHIED_JSON_PATH.exists():
         raise FileNotFoundError(f"指定されたパスに {PHIED_JSON_PATH} が存在しません。")
-    with open(PHIED_JSON_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        with open(PHIED_JSON_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"[ERROR] phied.json の読み込みに失敗しました: {e}")
+        traceback.print_exc()
+        return []
 
 def save_phied_logs(data: list) -> None:
     """phied.json へ安全に書き込む"""
-    with open(PHIED_JSON_PATH, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    try:
+        with open(PHIED_JSON_PATH, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"[ERROR] phied.json の保存に失敗しました: {e}")
+        traceback.print_exc()
 
 def determine_next_post_type(recent_logs: list) -> str:
-    """直近3件のタイプ（DAILY/NEWS）の出現数を算出し、少ない方を優先選出"""
-    if not recent_logs:
-        return "DAILY"
-    
-    recent_3 = recent_logs[:3]
-    news_count = sum(1 for log in recent_3 if log.get("type") == "NEWS")
-    daily_count = sum(1 for log in recent_3 if log.get("type") == "DAILY" or "type" not in log)
+    """NEWSをメイン（約80%）、DAILYをアクセント（約20%）として確率選出"""
+    if recent_logs:
+        recent_2 = recent_logs[:2]
+        if all(log.get("type") == "DAILY" for log in recent_2):
+            return "NEWS"
 
-    if news_count < daily_count:
-        return "NEWS"
-    elif daily_count < news_count:
-        return "DAILY"
-    else:
-        return random.choice(["DAILY", "NEWS"])
+    return random.choices(["NEWS", "DAILY"], weights=[80, 20], k=1)[0]
 
 def select_unbiased_author(recent_logs: list) -> str:
     """直近5件の出現履歴から、最も登場回数が少ない著者を重み付きで選出"""
@@ -119,14 +121,11 @@ def select_unbiased_author(recent_logs: list) -> str:
     if not recent_logs:
         return random.choice(all_authors)
 
-    # 直前1件の著者は絶対除外
     last_author = recent_logs[0].get("author")
     candidates = [a for a in all_authors if a != last_author]
 
-    # 直近5件の出現数をカウント
     recent_5_authors = [log.get("author") for log in recent_logs[:5] if log.get("author")]
     
-    # 登場回数が少ないほど高いスコア（重み）を与える
     weights = []
     for author in candidates:
         count = recent_5_authors.count(author)
@@ -139,16 +138,17 @@ def generate_post_data() -> tuple[dict, str, str]:
     """Ollamaを呼び出し、DAILYまたはNEWSの投稿データを生成（タプルで返す）"""
     logs = load_phied_logs()
     
-    # 1. 重み付き選出でタイプと著者を自動決定
     post_type = determine_next_post_type(logs)
     selected_author_id = select_unbiased_author(logs)
     agent = AGENT_PERSONAS[selected_author_id]
 
     print(f"🤖 選出エージェント: {agent['name']} ({selected_author_id}) | 投稿タイプ: {post_type}")
 
-    # 2. タイプに応じたプロンプト構築
+    news_data = None
     if post_type == "NEWS":
-        news_data = fetch_latest_news()
+        # 直近2件の投稿で使用された source（フィード名）を抽出して重複を防止
+        recent_sources = [log.get("source") for log in logs[:2] if log.get("source")]
+        news_data = fetch_latest_news(recent_sources=recent_sources)
         if not news_data:
             print("[WARN] NEWS取得失敗のため DAILY へフォールバックします。")
             post_type = "DAILY"
@@ -180,7 +180,6 @@ def generate_post_data() -> tuple[dict, str, str]:
 """
         user_prompt = f"ニュースタイトル: {news_data['title']}\nニュース概要: {news_data['summary']}\n\nこのニュースについての考察JSONを出力してください。"
     else:
-        # テーマ文字列からカンマ区切りで要素を分解し、毎回ランダムにテーマをシャッフル・限定する
         theme_list = [t.strip() for t in agent['themes'].split('、')]
         selected_theme = ", ".join(random.sample(theme_list, k=min(2, len(theme_list))))
 
@@ -225,6 +224,8 @@ def generate_post_data() -> tuple[dict, str, str]:
     
     generated_data = json.loads(json_match.group(0))
     generated_data["type"] = post_type
+    if post_type == "NEWS" and news_data:
+        generated_data["source"] = news_data.get("source", "")
 
     return generated_data, selected_author_id, agent["name"]
 
@@ -240,6 +241,7 @@ def generate_post():
         new_entry = {
             "commitId": new_commit_id,
             "type": generated_data.get("type", "DAILY"),
+            "source": generated_data.get("source", ""),
             "date": now.strftime("%Y.%m.%d"),
             "status": "ONLINE",
             "author": selected_author_id,
@@ -256,7 +258,7 @@ def generate_post():
         logs.insert(0, new_entry)
         save_phied_logs(logs)
 
-        print(f"✅ 自律投稿生成成功 [{new_entry['type']}]: {new_entry['title']}")
+        print(f"✅ 自律投稿生成成功 [{new_entry['type']}] (Source: {new_entry['source'] or 'N/A'}): {new_entry['title']}")
 
     except Exception as e:
         print("❌ エラーが発生しました。スタックトレース:")

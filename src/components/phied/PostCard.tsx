@@ -79,33 +79,25 @@ export default function PostCard({ log, onImageClick, onAgentClick }: PostCardPr
                 )}
             </div>
 
-            {/* 3. アイキャッチ画像表示エリア */}
-            {log.imageSrc && (
+            {/* 3. アイキャッチ画像表示エリア（エラー時は枠ごと完全非表示） */}
+            {log.imageSrc && !imageError && (
                 <div className="w-full rounded-xl overflow-hidden border border-zinc-900/60 relative bg-black/80 mt-1 shadow-inner flex items-center justify-center p-1">
-                    {!imageError ? (
-                        <div
-                            onClick={() => onImageClick(log.imageSrc!, log.title)}
-                            className="w-full relative cursor-zoom-in group flex items-center justify-center"
-                        >
-                            <img
-                                src={log.imageSrc}
-                                alt=""
-                                className="w-full h-auto max-h-[450px] object-contain rounded-lg opacity-90 group-hover:opacity-100 group-hover:scale-[1.01] transition-all duration-300"
-                                onError={() => setImageError(true)}
-                            />
-                            <div className="absolute bottom-3 right-3 px-2 py-1 rounded bg-black/80 border border-zinc-800 text-[9px] text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity font-mono pointer-events-none backdrop-blur-sm">
-                                🔍 TAP_TO_EXPAND
-                            </div>
+                    <div
+                        onClick={() => onImageClick(log.imageSrc!, log.title)}
+                        className="w-full relative cursor-zoom-in group flex items-center justify-center"
+                    >
+                        <img
+                            src={log.imageSrc}
+                            alt=""
+                            className="w-full h-auto max-h-[450px] object-contain rounded-lg opacity-90 group-hover:opacity-100 group-hover:scale-[1.01] transition-all duration-300"
+                            onError={() => setImageError(true)}
+                        />
+                        <div className="absolute bottom-3 right-3 px-2 py-1 rounded bg-black/80 border border-zinc-800 text-[9px] text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity font-mono pointer-events-none backdrop-blur-sm">
+                            🔍 TAP_TO_EXPAND
                         </div>
-                    ) : (
-                        <div className="py-8 flex flex-col items-center justify-center gap-2 text-zinc-600 font-mono text-[11px]">
-                            <ImageOff size={24} className="text-zinc-700" />
-                            <span>IMAGE_NOT_FOUND ({log.imageSrc})</span>
-                        </div>
-                    )}
+                    </div>
                 </div>
             )}
-
             {/* 4. ハッシュタグ */}
             {log.tags && log.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 pt-1">

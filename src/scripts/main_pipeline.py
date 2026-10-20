@@ -69,7 +69,7 @@ def run_pipeline():
         # Step 1: 記事テキストの自動生成
         print("\n--- [Step 1/4] 記事テキスト生成 ---")
         post_data, author_id, agent_name = generate_post_data()
-        print(f"📝 著者: {agent_name} ({author_id}) | タイトル: {post_data['title']}")
+        print(f"📝 著者: {agent_name} ({author_id}) | タイプ: {post_data.get('type')} | タイトル: {post_data['title']}")
 
         # Step 2: 著者に応じたモデル・画像・プロンプトで ComfyUI Job 投入
         print("\n--- [Step 2/4] キャラクター別プロンプト抽出 ＆ ComfyUI Job 投入 ---")
@@ -94,14 +94,16 @@ def run_pipeline():
 
         web_image_src = f"/images/phied/{image_filename}"
 
-        # Step 4: phied.json の更新
+        # Step 4: phied.json のデータ更新
         print("\n--- [Step 4/4] phied.json のデータ更新 ---")
         with open(PHIED_JSON_PATH, "r", encoding="utf-8") as f:
             logs = json.load(f)
 
+        source_name = post_data.get("source", "")
         new_entry = {
             "commitId": f"auto-{author_id}-{now.strftime('%Y%m%d%H%M%S')}",
-            "type": post_data.get("type", "DAILY"),  # ← ここを追加！
+            "type": post_data.get("type", "DAILY"),
+            "source": source_name,
             "date": now.strftime("%Y.%m.%d"),
             "status": "ONLINE",
             "author": author_id,
@@ -126,6 +128,7 @@ def run_pipeline():
     except Exception as e:
         print("\n❌ パイプライン実行中にエラーが発生しました:")
         traceback.print_exc()
+        raise e
 
 if __name__ == "__main__":
     run_pipeline()
