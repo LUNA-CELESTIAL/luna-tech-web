@@ -23,3 +23,9 @@ Makefile
 info.md
 push.md
 parse_posts.py
+# Python キャッシュとログの追跡除外（追加設定）
+__pycache__/
+*.py[cod]
+*.log
+src/scripts/logs/
+src/scripts/cron.log
