@@ -22,15 +22,33 @@ else:
 # .env の安全な読み込み
 load_dotenv(PROJECT_ROOT / ".env")
 
-# 設定値（確定パスと環境変数）
+# 設定値（環境変数優先・フォールバック付き）
 COMFYUI_HOST = os.getenv("COMFYUI_HOST", "127.0.0.1:8188")
-COMFYUI_OUTPUT_DIR = Path("/home/lulu/luna/luna_docker/draw_agents/outputs")
-WEB_PUBLIC_IMAGE_DIR = Path("/home/lulu/luna/luna_docker/luna-tech-web/public/images/phied")
+
+# パス設定（環境変数からの取得を優先し、直書き依存を防止）
+COMFYUI_OUTPUT_DIR = Path(os.getenv("COMFYUI_OUTPUT_DIR", "/home/lulu/luna/luna_docker/draw_agents/outputs"))
+WEB_PUBLIC_IMAGE_DIR = Path(os.getenv("WEB_PUBLIC_IMAGE_DIR", str(PROJECT_ROOT / "public" / "images" / "phied")))
 PHIED_JSON_PATH = PROJECT_ROOT / "src" / "data" / "phied.json"
 
-# 別モジュールから必要な関数のみをインポート
+# モジュールインポート（本番確定済みの comfyui_client を読み込み）
 from generate_phied import generate_post_data
 from comfyui_client import generate_image_for_author
+
+def ensure_directories_and_files():
+    """必要なディレクトリおよびファイルの存在を自律的に保証する安全網"""
+    try:
+        COMFYUI_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        WEB_PUBLIC_IMAGE_DIR.mkdir(parents=True, exist_ok=True)
+        PHIED_JSON_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+        if not PHIED_JSON_PATH.exists():
+            print(f"[WARN] {PHIED_JSON_PATH} が存在しないため、空リストで新規作成します。")
+            with open(PHIED_JSON_PATH, "w", encoding="utf-8") as f:
+                json.dump([], f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"[ERROR] ディレクトリ/ファイル初期化中にエラーが発生しました: {e}")
+        traceback.print_exc()
+        raise e
 
 def wait_for_comfyui_image(prompt_id: str, timeout_sec: int = 120) -> Path | None:
     """ComfyUI API (/history/{prompt_id}) をポーリングして生成完了を監視"""
@@ -65,6 +83,9 @@ def run_pipeline():
     """全8メンバー対応の自律投稿＆挿絵自動生成パイプライン"""
     print("🚀 === 自律投稿＆挿絵自動生成パイプライン開始 ===")
 
+    # ディレクトリ・ファイルの事前チェックと自動生成
+    ensure_directories_and_files()
+
     try:
         # Step 1: 記事テキストの自動生成
         print("\n--- [Step 1/4] 記事テキスト生成 ---")
@@ -83,8 +104,6 @@ def run_pipeline():
         if not generated_image:
             raise RuntimeError("画像の生成確認が取れませんでした。")
 
-        WEB_PUBLIC_IMAGE_DIR.mkdir(parents=True, exist_ok=True)
-
         now = datetime.now()
         image_filename = f"phied_{author_id}_{now.strftime('%Y%m%d%H%M%S')}.png"
         target_image_path = WEB_PUBLIC_IMAGE_DIR / image_filename
@@ -97,7 +116,11 @@ def run_pipeline():
         # Step 4: phied.json のデータ更新
         print("\n--- [Step 4/4] phied.json のデータ更新 ---")
         with open(PHIED_JSON_PATH, "r", encoding="utf-8") as f:
-            logs = json.load(f)
+            try:
+                logs = json.load(f)
+            except json.JSONDecodeError:
+                print(f"[WARN] {PHIED_JSON_PATH} の破損を検知したため、リセットして書き込みます。")
+                logs = []
 
         source_name = post_data.get("source", "")
         new_entry = {

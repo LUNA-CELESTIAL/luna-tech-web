@@ -1,17 +1,29 @@
-// src/types/phied.ts
+export interface PhiedReply {
+    replyId: string;
+    author: string;
+    authorName?: string;
+    pattern?: string;
+    stamp?: string;
+    content: string;
+    timestamp?: string;
+    createdAt?: string;
+}
 
 export interface PhiedPost {
-  commitId: string;
-  title: string;
-  content?: string;
-  imageSrc?: string;
-  tags?: string[];
-  status?: string;
-  date?: string;
-  
-  // PostCard.tsx で必要とされるオプショナルフィールド
-  author?: string;
-  authorName?: string;
-  timestamp?: string;
-  insights?: string;
+    commitId?: string;
+    type?: string;
+    source?: string;
+    date?: string;
+    status?: string;
+    author: string;
+    authorName?: string;
+    timestamp?: string;
+    title: string;
+    content?: string;
+    description?: string;
+    tags?: string[];
+    insights?: string;
+    imageSrc?: string;
+    // 🌸 これを追加して TypeScript に型を認識させるわよ！
+    replies?: PhiedReply[];
 }
