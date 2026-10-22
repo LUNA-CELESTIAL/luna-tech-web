@@ -1,4 +1,3 @@
-// src/app/layout.tsx
 'use client';
 
 import Link from "next/link";
@@ -85,8 +84,21 @@ export default function RootLayout({
             </Link>
           </div>
 
-          <div className="font-mono tracking-wider font-medium text-zinc-500 text-[10px] sm:text-[11px] text-center sm:text-right">
-            © LUNA's Constellations Lab. 2026
+          <div className="flex flex-col sm:items-end gap-1 font-mono tracking-wider font-medium text-zinc-500 text-[10px] sm:text-[11px] text-center sm:text-right">
+            {/* 🎙️ VOICEVOX 正式クレジット表記 */}
+            <p className="text-[10px] text-zinc-600">
+              Voice by{' '}
+              <a
+                href="https://voicevox.hiroshiba.jp/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-zinc-400 hover:text-pink-400 underline transition-colors"
+              >
+                VOICEVOX
+              </a>
+              :猫使ビィ,あいえるたん,雨晴はう,春日部つむぎ,冥鳴ひまり,櫻歌ミコ
+            </p>
+            <p>© LUNA's Constellations Lab. 2026</p>
           </div>
         </footer>
       </body>

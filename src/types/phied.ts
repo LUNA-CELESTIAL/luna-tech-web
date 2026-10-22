@@ -5,6 +5,7 @@ export interface PhiedReply {
     pattern?: string;
     stamp?: string;
     content: string;
+    audioSrc?: string;
     timestamp?: string;
     createdAt?: string;
 }
@@ -24,6 +25,6 @@ export interface PhiedPost {
     tags?: string[];
     insights?: string;
     imageSrc?: string;
-    // 🌸 これを追加して TypeScript に型を認識させるわよ！
+    videoSrc?: string;
     replies?: PhiedReply[];
 }

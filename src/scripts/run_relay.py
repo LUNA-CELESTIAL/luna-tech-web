@@ -22,11 +22,10 @@ load_dotenv(PROJECT_ROOT / ".env")
 
 PHIED_JSON_PATH = Path(os.getenv("PHIED_JSON_PATH", PROJECT_ROOT / "src" / "data" / "phied.json"))
 
-# generate_reply から必要な関数と定数のみを安全にインポート
+# 最新の generate_reply モジュールから安全にインポート
 from generate_reply import (
     MEMBER_PERSONAS,
-    decide_reply_pattern_with_clef,
-    generate_reply_content_with_vision
+    generate_single_rally_reply
 )
 
 def find_unreplied_posts() -> list[tuple[int, dict]]:
@@ -55,7 +54,7 @@ def find_unreplied_posts() -> list[tuple[int, dict]]:
         return []
 
 def process_reply_for_specific_post(post_index: int):
-    """指定されたインデックスの親投稿に対して自律リプを生成・追加保存する"""
+    """指定されたインデックスの過去投稿に対し、25%でPattern_C、75%で単発リプを自律付与して保存"""
     if not PHIED_JSON_PATH.exists():
         return
 
@@ -68,59 +67,52 @@ def process_reply_for_specific_post(post_index: int):
     target_post = logs[post_index]
     author_id = target_post.get("author", "")
     author_name = target_post.get("authorName", author_id)
-    image_src = target_post.get("imageSrc", "")
 
-    # 投稿者以外のメンバーから選出
-    available_responders = [k for k in MEMBER_PERSONAS.keys() if k != author_id]
-    if not available_responders:
-        available_responders = list(MEMBER_PERSONAS.keys())
-    
-    responder_id = random.choice(available_responders)
-    responder = MEMBER_PERSONAS[responder_id]
+    # 確率判定（25%の確率で Pattern_C 会話ラリー、75%で単発レス）
+    is_rally = (random.random() < 0.25) or (target_post.get("replyPatternHint") == "Pattern_C_Rally")
+    rally_count = random.randint(2, 4) if is_rally else 1
 
     print(f"\n📌 処理対象 [{post_index + 1}/{len(logs)}]: 【{author_name}】{target_post.get('title')}")
-    print(f"💬 返信選出: {responder['name']} ({responder_id})")
+    print(f"🎯 適用モード: {'Pattern_C_Rally (' + str(rally_count) + '件)' if is_rally else 'Single Reply (1件)'}")
 
-    # 画像パス解決（PROJECT_ROOT を基準に安全構築）
-    relative_image_path = image_src.lstrip("/")
-    image_path = PROJECT_ROOT / "public" / relative_image_path
-
-    # Step 1: clef-flash 演出判定
-    pattern = decide_reply_pattern_with_clef(
-        target_post.get("title", ""),
-        target_post.get("content", ""),
-        target_post.get("insights", "")
-    )
-
-    # Step 2: gemmavl 視覚＆文章生成
-    reply_text, stamp = generate_reply_content_with_vision(
-        responder, author_name, target_post, image_path, pattern
-    )
-
-    # Step 3: データ保存
-    now = datetime.now()
-    reply_entry = {
-        "replyId": f"reply-{responder_id}-{now.strftime('%Y%m%d%H%M%S')}",
-        "author": responder_id,
-        "authorName": responder["name"],
-        "pattern": pattern,
-        "stamp": stamp,
-        "content": reply_text,
-        "timestamp": now.strftime("%Y.%m.%d %H:%M")
-    }
+    # 投稿者以外のメンバー候補
+    available_responders = [k for k in MEMBER_PERSONAS.keys() if k != author_id]
+    random.shuffle(available_responders)
 
     if "replies" not in target_post or not isinstance(target_post["replies"], list):
         target_post["replies"] = []
 
-    target_post["replies"].append(reply_entry)
+    now = datetime.now()
+
+    for i in range(min(rally_count, len(available_responders))):
+        responder_id = available_responders[i]
+        responder = MEMBER_PERSONAS[responder_id]
+
+        print(f"💬 返信 {i+1}/{rally_count} : {responder['name']} ({responder_id}) が入力中...")
+
+        reply_text = generate_single_rally_reply(responder, target_post, target_post["replies"])
+
+        reply_entry = {
+            "replyId": f"reply-{responder_id}-{now.strftime('%Y%m%d%H%M%S')}-{i}",
+            "author": responder_id,
+            "authorName": responder["name"],
+            "pattern": "Pattern_C_Rally" if is_rally else "Pattern_B_Comment",
+            "stamp": "",
+            "content": reply_text,
+            "timestamp": now.strftime("%Y.%m.%d %H:%M")
+        }
+
+        target_post["replies"].append(reply_entry)
+
+    # 配列を更新して確実に上書き保存
     logs[post_index] = target_post
 
     with open(PHIED_JSON_PATH, "w", encoding="utf-8") as f:
         json.dump(logs, f, ensure_ascii=False, indent=2)
 
-    print(f"✨ リプ完了! [{pattern}] {responder['name']}: {reply_text[:40]}...")
+    print(f"✨ 保存完了! [{len(target_post['replies'])} 件のリプライを付与しました]")
 
-def run_backtrack_relay(interval_seconds: int = 3):
+def run_backtrack_relay(interval_seconds: int = 2):
     """過去の未返信投稿を全て遡ってリプを埋めていく巡回バッチ"""
     print("🚀 === 既存投稿・過去遡り自律リプ巡回バッチ開始 ===")
 
@@ -131,7 +123,7 @@ def run_backtrack_relay(interval_seconds: int = 3):
         print("🎉 未返信の投稿はありません！全ての投稿にリプがついています。")
         return
 
-    print(f"🔍 未返信の投稿を {total_unreplied} 件検知しました。過去の投稿から順番に処理を開始します...\n")
+    print(f"🔍 未返信の投稿を {total_unreplied} 件検知しました。過去の投稿から順次処理を開始します...\n")
 
     processed = 0
     for idx, post in unreplied_list:
@@ -146,7 +138,7 @@ def run_backtrack_relay(interval_seconds: int = 3):
         if processed < total_unreplied:
             time.sleep(interval_seconds)
 
-    print(f"\n🎉 === 全 {total_unreplied} 件の過去投稿への自律リプ完了 ===")
+    print(f"\n🎉 === 全 {total_unreplied} 件の過去投稿への自律リプ巡回完了 ===")
 
 if __name__ == "__main__":
-    run_backtrack_relay(interval_seconds=3)
+    run_backtrack_relay(interval_seconds=2)

@@ -24,15 +24,14 @@ load_dotenv(PROJECT_ROOT / ".env")
 
 # 設定値（環境変数優先・フォールバック付き）
 COMFYUI_HOST = os.getenv("COMFYUI_HOST", "127.0.0.1:8188")
-
-# パス設定（環境変数からの取得を優先し、直書き依存を防止）
 COMFYUI_OUTPUT_DIR = Path(os.getenv("COMFYUI_OUTPUT_DIR", "/home/lulu/luna/luna_docker/draw_agents/outputs"))
 WEB_PUBLIC_IMAGE_DIR = Path(os.getenv("WEB_PUBLIC_IMAGE_DIR", str(PROJECT_ROOT / "public" / "images" / "phied")))
 PHIED_JSON_PATH = PROJECT_ROOT / "src" / "data" / "phied.json"
 
-# モジュールインポート（本番確定済みの comfyui_client を読み込み）
+# モジュールインポート
 from generate_phied import generate_post_data
 from comfyui_client import generate_image_for_author
+from generate_reply import process_auto_reply
 
 def ensure_directories_and_files():
     """必要なディレクトリおよびファイルの存在を自律的に保証する安全網"""
@@ -80,26 +79,25 @@ def wait_for_comfyui_image(prompt_id: str, timeout_sec: int = 120) -> Path | Non
     return None
 
 def run_pipeline():
-    """全8メンバー対応の自律投稿＆挿絵自動生成パイプライン"""
-    print("🚀 === 自律投稿＆挿絵自動生成パイプライン開始 ===")
+    """全8メンバー対応の自律投稿＆挿絵自動生成＆リプライ付与パイプライン"""
+    print("🚀 === 自律投稿・画像生成・リプライ一気通貫パイプライン開始 ===")
 
-    # ディレクトリ・ファイルの事前チェックと自動生成
     ensure_directories_and_files()
 
     try:
         # Step 1: 記事テキストの自動生成
-        print("\n--- [Step 1/4] 記事テキスト生成 ---")
+        print("\n--- [Step 1/5] 記事テキスト生成 ---")
         post_data, author_id, agent_name = generate_post_data()
         print(f"📝 著者: {agent_name} ({author_id}) | タイプ: {post_data.get('type')} | タイトル: {post_data['title']}")
 
-        # Step 2: 著者に応じたモデル・画像・プロンプトで ComfyUI Job 投入
-        print("\n--- [Step 2/4] キャラクター別プロンプト抽出 ＆ ComfyUI Job 投入 ---")
+        # Step 2: ComfyUI Job 投入
+        print("\n--- [Step 2/5] キャラクター別プロンプト抽出 ＆ ComfyUI Job 投入 ---")
         prompt_id = generate_image_for_author(author_id, post_data["content"])
         if not prompt_id:
             raise RuntimeError("ComfyUI への Job 投入に失敗しました。")
 
-        # Step 3: 画像生成完了の監視と公開フォルダへの転送
-        print("\n--- [Step 3/4] 画像生成完了の待機 ＆ 公開ディレクトリへの配置 ---")
+        # Step 3: 画像生成完了の監視と公開フォルダへの配置
+        print("\n--- [Step 3/5] 画像生成完了の待機 ＆ 公開ディレクトリへの配置 ---")
         generated_image = wait_for_comfyui_image(prompt_id)
         if not generated_image:
             raise RuntimeError("画像の生成確認が取れませんでした。")
@@ -113,13 +111,13 @@ def run_pipeline():
 
         web_image_src = f"/images/phied/{image_filename}"
 
-        # Step 4: phied.json のデータ更新
-        print("\n--- [Step 4/4] phied.json のデータ更新 ---")
+        # Step 4: 親投稿を phied.json に先頭追加して保存
+        print("\n--- [Step 4/5] 親投稿の phied.json への保存 ---")
         with open(PHIED_JSON_PATH, "r", encoding="utf-8") as f:
             try:
                 logs = json.load(f)
             except json.JSONDecodeError:
-                print(f"[WARN] {PHIED_JSON_PATH} の破損を検知したため、リセットして書き込みます。")
+                print(f"[WARN] {PHIED_JSON_PATH} の破損を検知したためリセットします。")
                 logs = []
 
         source_name = post_data.get("source", "")
@@ -140,13 +138,22 @@ def run_pipeline():
             "imageSrc": web_image_src
         }
 
+        # replyPatternHint があれば保持
+        if "replyPatternHint" in post_data:
+            new_entry["replyPatternHint"] = post_data["replyPatternHint"]
+
         logs.insert(0, new_entry)
 
         with open(PHIED_JSON_PATH, "w", encoding="utf-8") as f:
             json.dump(logs, f, ensure_ascii=False, indent=2)
 
-        print(f"✨ 完了: phied.json を更新しました! (画像URL: {web_image_src})")
-        print("\n🎉 === 全パイプライン正常終了 ===")
+        print(f"✨ 親投稿保存完了! (タイトル: {new_entry['title']})")
+
+        # Step 5: 保存された親投稿に対して自動リプライ（Pattern_C含む）を付与
+        print("\n--- [Step 5/5] 自律会話ラリー・リプライの生成 ＆ 上書き保存 ---")
+        process_auto_reply()
+
+        print("\n🎉 === 全パイプライン正常完了！親投稿とリプライが正しく保存されました ===")
 
     except Exception as e:
         print("\n❌ パイプライン実行中にエラーが発生しました:")

@@ -1,0 +1,38 @@
+{
+  "luna": {
+    "voice_id": 58,
+    "speed_scale": 1.00,
+    "intonation_scale": 1.05,
+    "volume_scale": 1.0
+  },
+  "spica": {
+    "voice_id": 68,
+    "speed_scale": 1.02,
+    "intonation_scale": 1.00,
+    "volume_scale": 1.0
+  },
+  "sirius": {
+    "voice_id": 10,
+    "speed_scale": 1.02,
+    "intonation_scale": 1.02,
+    "volume_scale": 1.15
+  },
+  "stella": {
+    "voice_id": 8,
+    "speed_scale": 1.00,
+    "intonation_scale": 1.00,
+    "volume_scale": 1.0
+  },
+  "selene": {
+    "voice_id": 14,
+    "speed_scale": 0.98,
+    "intonation_scale": 1.00,
+    "volume_scale": 1.0
+  },
+  "nano": {
+    "voice_id": 43,
+    "speed_scale": 1.05,
+    "intonation_scale": 1.08,
+    "volume_scale": 1.0
+  }
+}

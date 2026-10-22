@@ -164,6 +164,27 @@ export default function PostCard({ log, onImageClick, onAgentClick }: PostCardPr
                 </div>
             )}
 
+            {/* 🎬 3.5. 動画専用表示エリア（パターンB：videoSrcが存在する場合のみレンダリング） */}
+            {log.videoSrc && (
+                <div className="w-full rounded-xl overflow-hidden border border-pink-500/30 relative bg-black/90 mt-2 shadow-2xl flex flex-col items-center justify-center p-1">
+                    <div className="w-full flex items-center justify-between px-2 py-1 text-[10px] text-pink-400 font-mono border-b border-zinc-900/80 mb-1">
+                        <span className="flex items-center gap-1.5 font-bold">
+                            <span className="w-2 h-2 rounded-full bg-pink-500 animate-ping" />
+                            MOTION_VIDEO_STREAM
+                        </span>
+                        <span className="text-zinc-600">MINIMAX_H3</span>
+                    </div>
+                    <video
+                        src={log.videoSrc}
+                        controls
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-auto max-h-[480px] object-contain rounded-lg opacity-95 hover:opacity-100 transition-opacity"
+                    />
+                </div>
+            )}
             {/* 4. ハッシュタグ */}
             {log.tags && log.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 pt-0.5">
@@ -252,7 +273,7 @@ export default function PostCard({ log, onImageClick, onAgentClick }: PostCardPr
                                 const replyName = reply.authorName || replyAgentData?.name || reply.author;
 
                                 return (
-                                    <div key={reply.replyId || index} className="bg-zinc-950/80 p-3 rounded-xl border border-zinc-850 space-y-1.5 shadow-md">
+                                    <div key={reply.replyId || index} className="bg-zinc-950/80 p-3 rounded-xl border border-zinc-850 space-y-2 shadow-md">
                                         <div className="flex items-center justify-between text-[10px]">
                                             <span className="font-bold text-zinc-300 flex items-center gap-1.5">
                                                 <span>{replySymbol}</span>
@@ -272,6 +293,18 @@ export default function PostCard({ log, onImageClick, onAgentClick }: PostCardPr
                                             {reply.stamp && <span className="mr-1.5">{reply.stamp}</span>}
                                             {reply.content}
                                         </p>
+
+                                        {/* 🎙️ 音声再生プレイヤーエリア（audioSrcが存在する場合のみ表示） */}
+                                        {reply.audioSrc && (
+                                            <div className="pt-1">
+                                                <audio
+                                                    controls
+                                                    src={reply.audioSrc}
+                                                    className="w-full h-7 rounded-lg opacity-80 hover:opacity-100 transition-opacity"
+                                                    preload="none"
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                 );
                             })}
@@ -304,7 +337,6 @@ export default function PostCard({ log, onImageClick, onAgentClick }: PostCardPr
                     )}
                 </div>
             )}
-
         </article>
     );
 }
