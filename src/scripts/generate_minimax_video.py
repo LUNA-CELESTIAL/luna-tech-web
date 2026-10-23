@@ -57,12 +57,12 @@ def generate_dynamic_video_prompt(author_id: str, title: str, content: str) -> s
     print(f"🧠 [{author_id.upper()}] Ollama ({OLLAMA_MODEL}) によるアンビエントプロンプト生成開始...")
 
     system_prompt = (
-        "You are an expert prompt engineer for MiniMax H3 Image-to-Video model.\n"
-        "Generate a short video motion prompt based on the article content.\n"
+        "You are an expert prompt engineer for the MiniMax H3 Image-to-Video model.\n"
+        "Generate a short video motion prompt based on the provided content.\n\n"
         "STRICT RULES:\n"
-        "1. DO NOT describe any character physical features (NO hair color, NO ponytail, NO clothing, NO age).\n"
-        "2. DO NOT include timestamp brackets (like [0.00s-1.50s]) or Audio instructions.\n"
-        "3. Focus ONLY on: camera movement (slow pan/zoom), subtle body motion, lighting, and mood.\n"
+        "1. NEVER mention time/duration (e.g., '5 seconds', '6 seconds').\n"
+        "2. NEVER describe character features (NO hair color, NO clothes, NO age).\n"
+        "3. Focus ONLY on subtle ambient motion, lighting, and slow camera movement.\n"
         "4. Output strictly in this format as a single-line English string:\n"
         "   'High quality ambient video based on input image. [Camera Movement]. [Subtle Motion & Mood]. Smooth transitions, 8k resolution.'"
     )
@@ -83,17 +83,21 @@ def generate_dynamic_video_prompt(author_id: str, title: str, content: str) -> s
         with urllib.request.urlopen(req, timeout=30) as res:
             data = json.loads(res.read().decode("utf-8"))
             prompt_text = data.get("response", "").strip().replace("\n", " ")
-            print(f"💡 [LLM Generated Prompt]: {prompt_text}")
             
-            # 🚨 必須: 推論完了直後に即座にVRAMからモデルをアンロード！
-            unload_ollama_vram(OLLAMA_MODEL)
+            if not prompt_text:
+                raise ValueError("Ollamaからの応答テキストが空でした。")
+
+            print(f"💡 [LLM Generated Prompt]: {prompt_text}")
             return prompt_text
 
     except Exception as e:
-        print(f"⚠️ [WARN] Ollamaプロンプト生成失敗。デフォルトアンビエントプロンプトを使用します: {e}")
-        unload_ollama_vram(OLLAMA_MODEL)
+        print(f"❌ [ERROR] Ollamaプロンプト生成中にエラーが発生しました:")
+        traceback.print_exc()  # 👈 詳細なエラーログを吐かせて原因を完全特定！
         return "cinematic atmosphere, subtle ambient motion, soft lighting, calm mood, slow camera pan, high quality, 4k resolution"
-
+    finally:
+        # 🚨 成否に関わらず即座にVRAM解放！
+        unload_ollama_vram(OLLAMA_MODEL)
+        
 def generate_h3_video_for_post(post_entry: dict, dynamic_prompt: str = None) -> str | None:
     """MiniMax H3 ワークフローを制御し、5秒動画をレンダリング配置する"""
     author_id = post_entry.get("author", "luna").lower()
