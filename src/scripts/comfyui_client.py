@@ -19,9 +19,14 @@ else:
     PROJECT_ROOT = SCRIPT_DIR.parent
 
 # .env の安全な読み込み
-load_dotenv(PROJECT_ROOT / ".env")
+env_path = PROJECT_ROOT / ".env"
+if not env_path.exists():
+    env_path = PROJECT_ROOT / "src" / ".env"
+
+load_dotenv(env_path, override=True)
 
 COMFYUI_HOST = os.getenv("COMFYUI_HOST", "127.0.0.1:8188")
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "127.0.0.1:11434")
 
 DEFAULT_JSON_PATH = PROJECT_ROOT / "luna.json"
 JSON_WORKFLOW_PATH = Path(os.getenv("COMFYUI_JSON_PATH", str(DEFAULT_JSON_PATH)))
@@ -74,6 +79,25 @@ MEMBER_BASE_PROMPTS = {
     )
 }
 
+def unload_ollama_vram(model_name: str = "muse-unce:latest"):
+    """
+    🧹 [VRAM最適化] OllamaモデルをVRAMから即座に破棄（アンロード）する。
+    keep_alive: 0 を投げることで、GPUメモリを完全開放しサーマルスロットリングを防止する。
+    """
+    try:
+        url = f"http://{OLLAMA_HOST}/api/generate"
+        payload = json.dumps({
+            "model": model_name,
+            "keep_alive": 0
+        }).encode("utf-8")
+        
+        req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"}, method="POST")
+        with urllib.request.urlopen(req, timeout=10) as res:
+            pass
+        print(f"🧹 [VRAM RELEASE] Ollamaモデル ({model_name}) のVRAM解放完了！")
+    except Exception as e:
+        print(f"⚠️ [WARN] Ollama VRAM解放リクエスト失敗 (継続処理可能): {e}")
+
 def parse_llm_json_safely(raw_text: str) -> dict:
     """
     思考ログやシステムプロンプトのオウム返し（Example表記）を無視し、
@@ -113,7 +137,8 @@ def generate_situational_json_realistic(tweet_text: str) -> dict:
     try:
         response = ollama.generate(model="muse-unce:latest", prompt=system_prompt)
         raw_text = response.get('response', '').strip()
-        return parse_llm_json_safely(raw_text)
+        parsed_result = parse_llm_json_safely(raw_text)
+        return parsed_result
 
     except Exception as e:
         print(f"[WARN] Ollama Realistic JSON解析失敗、デフォルト値へフォールバックします: {e}")
@@ -125,6 +150,9 @@ def generate_situational_json_realistic(tweet_text: str) -> dict:
             "camera_and_pose": "medium shot, natural seated pose",
             "expression_and_mood": "calm thoughtful expression, soft natural lighting"
         }
+    finally:
+        # 🚨 成功・失敗にかかわらず確実にVRAMからモデルを破棄！
+        unload_ollama_vram("muse-unce:latest")
 
 def build_realistic_style_prompt_from_json(base_prompt: str, tweet_text: str) -> str:
     """JSONデータを受け取り、文脈の通った自然な英文プロンプトへガッチャンコして再構築"""
@@ -160,7 +188,8 @@ def generate_situational_json_anime(tweet_text: str) -> dict:
     try:
         response = ollama.generate(model="muse-unce:latest", prompt=system_prompt)
         raw_text = response.get('response', '').strip()
-        return parse_llm_json_safely(raw_text)
+        parsed_result = parse_llm_json_safely(raw_text)
+        return parsed_result
 
     except Exception as e:
         print(f"[WARN] Ollama Anime JSON解析失敗、デフォルト値へフォールバックします: {e}")
@@ -172,6 +201,9 @@ def generate_situational_json_anime(tweet_text: str) -> dict:
             "camera_and_gaze": "medium shot, crisp anime art style",
             "style_and_lighting": "soft studio lighting, vibrant colors, highly detailed"
         }
+    finally:
+        # 🚨 成功・失敗にかかわらず確実にVRAMからモデルを破棄！
+        unload_ollama_vram("muse-unce:latest")
 
 def build_anime_style_prompt_from_json(base_prompt: str, tweet_text: str) -> str:
     """JSONデータを受け取り、2Dアニメ調の文脈プロンプトを再構築"""

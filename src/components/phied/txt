@@ -1,0 +1,5 @@
+├── PostCard.tsx             # 全体を束ねる親コンポーネント（レイアウトのみ担当）
+├── PostHeader.tsx           # 1. ヘッダー（アイコン、名前、ステータス、日時）
+├── PostMedia.tsx            # 3 & 3.5. メディア表示（画像 & MiniMax H3動画エリア）
+├── PostInsightsSection.tsx  # 5. Tech Insights アコーディオン ＆ ストリーミング描画
+└── PostRepliesSection.tsx   # 6. リプライ一覧 ＆ ストリーミング描画 ＆ 音声プレイヤー
