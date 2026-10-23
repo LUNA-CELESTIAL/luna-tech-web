@@ -7,7 +7,7 @@ import traceback
 import shutil
 from pathlib import Path
 from dotenv import load_dotenv
-
+import ollama
 # 1. パスの安全な自動解決 (.env の厳密検出)
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent.parent if SCRIPT_DIR.name == "scripts" else SCRIPT_DIR.parent
@@ -58,7 +58,7 @@ def unload_ollama_vram(model_name: str = OLLAMA_MODEL):
 
 
 def generate_dynamic_video_prompt(author_id: str, title: str, content: str) -> str:
-    """Ollamaを使用して無言・アンビエント演出用の動画生成プロンプトを構築"""
+    """Ollama公式ライブラリを使用して無言・アンビエント演出用の動画生成プロンプトを構築"""
     print(f"🧠 [{author_id.upper()}] Ollama ({OLLAMA_MODEL}) によるアンビエントプロンプト生成開始...")
 
     system_prompt = (
@@ -75,33 +75,32 @@ def generate_dynamic_video_prompt(author_id: str, title: str, content: str) -> s
     user_prompt = f"Author Agent: {author_id}\nArticle Title: {title}\nArticle Content Summary: {content[:200]}"
 
     try:
-        url = f"http://{OLLAMA_HOST}/api/generate"
-        payload = json.dumps({
-            "model": OLLAMA_MODEL,
-            "system": system_prompt,
-            "prompt": user_prompt,
-            "stream": False,
-            "options": {"temperature": 0.7}
-        }).encode("utf-8")
+        # http:// の重複を予防しつつ Host を指定
+        host_url = f"http://{OLLAMA_HOST}" if not OLLAMA_HOST.startswith("http") else OLLAMA_HOST
+        client = ollama.Client(host=host_url)
 
-        req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"}, method="POST")
-        with urllib.request.urlopen(req, timeout=30) as res:
-            data = json.loads(res.read().decode("utf-8"))
-            prompt_text = data.get("response", "").strip().replace("\n", " ")
-            
-            if not prompt_text:
-                raise ValueError("Ollamaからの応答テキストが空でした。")
+        # 公式ライブラリで呼び出し（モデルロード待機にも安全に対応）
+        response = client.generate(
+            model=OLLAMA_MODEL,
+            system=system_prompt,
+            prompt=user_prompt,
+            options={"temperature": 0.7}
+        )
+        
+        prompt_text = response.get("response", "").strip().replace("\n", " ")
+        if not prompt_text:
+            raise ValueError("Ollamaからの応答テキストが空でした。")
 
-            print(f"💡 [LLM Generated Prompt]: {prompt_text}")
-            return prompt_text
+        print(f"💡 [LLM Generated Prompt]: {prompt_text}")
+        return prompt_text
 
     except Exception as e:
         print(f"❌ [ERROR] Ollamaプロンプト生成中にエラーが発生しました:")
         traceback.print_exc()
         return "High quality ambient video based on input image. Slow camera zoom. Calm lighting and gentle breathing motion. Smooth transitions, 8k resolution."
     finally:
+        # VRAM解放
         unload_ollama_vram(OLLAMA_MODEL)
-
 
 def generate_h3_video_for_post(post_entry: dict, dynamic_prompt: str = None) -> str | None:
     """MiniMax H3 ワークフローを制御し、動画をレンダリング配置する"""
