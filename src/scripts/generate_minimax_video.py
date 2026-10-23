@@ -4,8 +4,8 @@ import time
 import urllib.request
 import urllib.parse
 import traceback
+import shutil
 from pathlib import Path
-import shutil  # 👈 これを追加！
 from dotenv import load_dotenv
 
 # 1. パスの安全な自動解決 (.env の厳密検出)
@@ -18,19 +18,23 @@ if not env_path.exists():
 
 load_dotenv(dotenv_path=env_path, override=True)
 
-# 設定値（環境変数からの読み込みとフォールバック）
-COMFYUI_HOST = os.getenv("COMFYUI_HOST", "127.0.0.1:8188")
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "127.0.0.1:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
+# 設定値（スキーム自動剥ぎ取りによるURL堅牢化）
+raw_ollama_host = os.getenv("OLLAMA_HOST", "127.0.0.1:11434").replace("http://", "").replace("https://", "").strip("/")
+OLLAMA_HOST = raw_ollama_host if raw_ollama_host else "127.0.0.1:11434"
+
+COMFYUI_HOST = os.getenv("COMFYUI_HOST", "127.0.0.1:8188").replace("http://", "").replace("https://", "").strip("/")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL_PROMPT", os.getenv("OLLAMA_MODEL", "qwen2.5:7b"))
 
 env_input_dir = os.getenv("COMFYUI_INPUT_DIR")
 if env_input_dir:
     COMFYUI_INPUT_DIR = Path(env_input_dir).resolve()
 else:
     COMFYUI_INPUT_DIR = Path("/home/lulu/comfy/ComfyUI/input").resolve()
+
 COMFYUI_OUTPUT_DIR = Path(os.getenv("COMFYUI_OUTPUT_DIR", str(PROJECT_ROOT.parent / "draw_agents" / "outputs")))
 WEB_PUBLIC_VIDEO_DIR = Path(os.getenv("WEB_PUBLIC_VIDEO_DIR", str(PROJECT_ROOT / "public" / "videos" / "phied")))
 WORKFLOW_JSON_PATH = PROJECT_ROOT / "src" / "scripts" / "MiniMax.json"
+
 
 def unload_ollama_vram(model_name: str = OLLAMA_MODEL):
     """
@@ -50,7 +54,8 @@ def unload_ollama_vram(model_name: str = OLLAMA_MODEL):
             pass
         print(f"✨ [VRAM RELEASE] VRAM解放成功！GPUメモリがクリアされました。")
     except Exception as e:
-        print(f"⚠️ [WARN] Ollama VRAM解放失敗 (継続処理可能): {e}")
+        print(f"⚠️ [WARN] Ollama VRAM解放リクエスト失敗 (継続処理可能): {e}")
+
 
 def generate_dynamic_video_prompt(author_id: str, title: str, content: str) -> str:
     """Ollamaを使用して無言・アンビエント演出用の動画生成プロンプトを構築"""
@@ -92,18 +97,18 @@ def generate_dynamic_video_prompt(author_id: str, title: str, content: str) -> s
 
     except Exception as e:
         print(f"❌ [ERROR] Ollamaプロンプト生成中にエラーが発生しました:")
-        traceback.print_exc()  # 👈 詳細なエラーログを吐かせて原因を完全特定！
-        return "cinematic atmosphere, subtle ambient motion, soft lighting, calm mood, slow camera pan, high quality, 4k resolution"
+        traceback.print_exc()
+        return "High quality ambient video based on input image. Slow camera zoom. Calm lighting and gentle breathing motion. Smooth transitions, 8k resolution."
     finally:
-        # 🚨 成否に関わらず即座にVRAM解放！
         unload_ollama_vram(OLLAMA_MODEL)
-        
+
+
 def generate_h3_video_for_post(post_entry: dict, dynamic_prompt: str = None) -> str | None:
-    """MiniMax H3 ワークフローを制御し、5秒動画をレンダリング配置する"""
+    """MiniMax H3 ワークフローを制御し、動画をレンダリング配置する"""
     author_id = post_entry.get("author", "luna").lower()
     commit_id = post_entry.get("commitId", f"post-{int(time.time())}")
 
-    # 1. 入力参照画像の特定（絶対パスで厳密チェック）
+    # 1. 入力参照画像の特定（絶対パス）
     source_image_filename = f"{author_id}.png"
     input_image_path = COMFYUI_INPUT_DIR / source_image_filename
 
@@ -122,15 +127,11 @@ def generate_h3_video_for_post(post_entry: dict, dynamic_prompt: str = None) -> 
     with open(WORKFLOW_JSON_PATH, "r", encoding="utf-8") as f:
         workflow = json.load(f)
 
-    # 3. ワークフローノードの引数注入（画像名とプロンプトの完全上書き）
-    # 画像入力ノード（114番ノード）に参照画像名を確実にセット
+    # 3. ワークフローノードの引数注入
     if "114" in workflow and "inputs" in workflow["114"]:
         workflow["114"]["inputs"]["image"] = source_image_filename
         print(f"✨ [IMAGE INJECT] 114番ノードへ {source_image_filename} を注入完了！")
-    else:
-        print(f"⚠️ [WARN] 114番ノードが見つかりません。デフォルト画像で走る危険があります！")
 
-    # プロンプトノード（105_104番ノード）に動的プロンプトを注入
     prompt_injected = False
     if "105_104" in workflow and "inputs" in workflow["105_104"]:
         workflow["105_104"]["inputs"]["prompt"] = dynamic_prompt
@@ -158,10 +159,9 @@ def generate_h3_video_for_post(post_entry: dict, dynamic_prompt: str = None) -> 
 
     # 5. 生成完了の監視 (/history/{prompt_id})
     start_time = time.time()
-    timeout_sec = 400  # ⏳ ルルからの共有通り 400秒に設定
+    timeout_sec = 400
     generated_video_path = None
 
-    # 出力先候補ディレクトリの完全網羅（環境変数・実測パス・ComfyUI標準）
     candidate_dirs = [
         COMFYUI_OUTPUT_DIR,
         COMFYUI_OUTPUT_DIR / "video",
@@ -184,14 +184,12 @@ def generate_h3_video_for_post(post_entry: dict, dynamic_prompt: str = None) -> 
 
                 outputs = history[prompt_id].get("outputs", {})
                 for node_id, node_output in outputs.items():
-                    # gifs / videos / images キーを安全に抽出
                     video_list = node_output.get("gifs", []) or node_output.get("videos", []) or node_output.get("images", [])
                     if video_list:
                         out_info = video_list[0]
                         out_filename = out_info.get("filename")
                         subfolder = out_info.get("subfolder", "")
 
-                        # 各検索候補ディレクトリからファイルの実在を確認
                         for target_dir in candidate_dirs:
                             check_path = target_dir / subfolder / out_filename if subfolder else target_dir / out_filename
                             if check_path.exists():
@@ -204,8 +202,7 @@ def generate_h3_video_for_post(post_entry: dict, dynamic_prompt: str = None) -> 
 
                 if generated_video_path:
                     break
-        except Exception as e:
-            # デバッグ用にログを薄く出力（ループを潰さない）
+        except Exception:
             pass
 
         time.sleep(5)
@@ -213,15 +210,7 @@ def generate_h3_video_for_post(post_entry: dict, dynamic_prompt: str = None) -> 
     if not generated_video_path or not generated_video_path.exists():
         print(f"❌ [ERROR] 動画生成がタイムアウトまたはファイル出力失敗 ({timeout_sec}秒)")
         return None
-    # 6. public/videos/phied/ への配置
-    WEB_PUBLIC_VIDEO_DIR.mkdir(parents=True, exist_ok=True)
-    target_video_filename = f"phied_{author_id}_{commit_id}.mp4"
-    target_video_path = WEB_PUBLIC_VIDEO_DIR / target_video_filename
 
-    shutil.copy(generated_video_path, target_video_path)
-    print(f"🚚 動画配置完了: {target_video_path}")
-
-    return f"/videos/phied/{target_video_filename}"
     # 6. public/videos/phied/ への配置
     WEB_PUBLIC_VIDEO_DIR.mkdir(parents=True, exist_ok=True)
     target_video_filename = f"phied_{author_id}_{commit_id}.mp4"
