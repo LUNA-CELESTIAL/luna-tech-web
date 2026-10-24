@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Sparkles, Brain, ArrowRight, Info } from 'lucide-react';
+import { X, Sparkles, Brain, ArrowRight, Info, History, ChevronDown } from 'lucide-react';
 import { AGENT_MEMBERS } from '@/data/agents';
 import { PhiedPost } from '@/types/phied';
 import PostInsightsSection from '@/components/phied/PostInsightsSection';
@@ -83,15 +83,16 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
   const [stepIdx, setStepIdx] = useState(0);
   const [showInsights, setShowInsights] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
+  const [isLogHistoryOpen, setIsLogHistoryOpen] = useState(false);
 
-  // 会話自動スクロール用の参照
-  const chatBottomRef = useRef<HTMLDivElement>(null);
+  const historyBottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isOpen) {
       setStepIdx(0);
       setShowInsights(false);
       setShowReplies(false);
+      setIsLogHistoryOpen(false);
       return;
     }
 
@@ -112,12 +113,12 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
     return () => clearTimeout(timer);
   }, [isOpen, stepIdx]);
 
-  // 新しいステップに進むたびに会話の最下部へ自動スクロール
+  // ログ履歴が開かれている時だけ最新へ追従
   useEffect(() => {
-    if (isOpen) {
-      chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (isOpen && isLogHistoryOpen) {
+      historyBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [stepIdx, isOpen]);
+  }, [stepIdx, isOpen, isLogHistoryOpen]);
 
   if (!isOpen) return null;
 
@@ -153,44 +154,47 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
     ] : []
   };
 
+  // 直近のステップ群（PC: 2件, スマホ: 1件表示用）
+  const currentStep = STEPS[stepIdx];
+  const prevStep = stepIdx > 0 ? STEPS[stepIdx - 1] : null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-xl animate-fadeIn overflow-y-auto">
-      <div className="bg-[#08080d] border border-pink-500/30 rounded-3xl max-w-2xl w-full p-4 sm:p-6 space-y-4 shadow-[0_0_50px_rgba(236,72,153,0.15)] relative font-sans text-zinc-100 my-auto max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/90 backdrop-blur-xl animate-fadeIn overflow-hidden">
+      <div className="bg-[#08080d] border border-pink-500/30 rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-[0_0_50px_rgba(236,72,153,0.15)] relative font-sans text-zinc-100 h-[92vh] flex flex-col justify-between">
 
         {/* 閉じるボタン */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-xl bg-zinc-900/80 border border-zinc-800 text-zinc-400 hover:text-white hover:border-pink-500/50 transition-all cursor-pointer z-10"
+          className="absolute top-3.5 right-3.5 p-2 rounded-xl bg-zinc-900/80 border border-zinc-800 text-zinc-400 hover:text-white hover:border-pink-500/50 transition-all cursor-pointer z-20"
         >
           <X size={18} />
         </button>
 
-        {/* ヘッダー */}
-        <div className="space-y-1 pr-6 shrink-0">
-          <div className="flex items-center gap-2 text-pink-400 font-mono text-xs font-bold tracking-widest uppercase">
-            <Sparkles size={14} className="animate-pulse" />
+        {/* 1. ヘッダー (コンパクト化) */}
+        <div className="shrink-0 space-y-0.5 pr-8 border-b border-zinc-900 pb-2">
+          <div className="flex items-center gap-2 text-pink-400 font-mono text-[10px] sm:text-xs font-bold tracking-widest uppercase">
+            <Sparkles size={13} className="animate-pulse" />
             <span>ABOUT LUNA'S CONSTELLATIONS</span>
           </div>
-          <h2 className="text-base sm:text-lg font-black text-white leading-snug">
-            指示出しに疲れたあなたへ。
+          <h2 className="text-sm sm:text-base font-black text-white leading-tight">
+            8人のAIによる自律生成ライブプロセス
           </h2>
         </div>
 
-        {/* 縦スクロール領域（不要な導入文章を削除し、プレビューと会話を連続配置） */}
-        <div className="space-y-4 overflow-y-auto pr-1 flex-1 font-mono">
-          
-          {/* ① 上部：「できあがっていく投稿（BUILD_PREVIEW）」※stickyを解除し自然なスクロール要素へ */}
-          <div className="bg-[#08080c] border border-zinc-850 rounded-xl p-3.5 space-y-3 shadow-inner">
-            <div className="flex items-center justify-between text-[10px] text-zinc-500 font-bold border-b border-zinc-900 pb-1">
-              <span>// BUILD_PREVIEW (リアルタイム更新中)</span>
-              <span className="text-pink-400 font-mono">Step {stepIdx + 1}/{STEPS.length}</span>
+        {/* 2. メイン領域：BUILD_PREVIEW (常に画面の中央〜上部に収まるスクロール枠) */}
+        <div className="flex-1 overflow-y-auto py-3 pr-1 font-mono space-y-3">
+          <div className="bg-[#08080c] border border-zinc-850 rounded-2xl p-3 sm:p-4 space-y-3 shadow-inner">
+            <div className="flex items-center justify-between text-[10px] text-zinc-500 font-bold border-b border-zinc-900 pb-1.5">
+              <span className="flex items-center gap-1.5 text-pink-400">
+                <Brain size={13} className="animate-spin text-cyan-400" />
+                // BUILD_PREVIEW (リアルタイム更新中)
+              </span>
+              <span className="font-mono text-zinc-400">Step {stepIdx + 1}/{STEPS.length}</span>
             </div>
 
-            {/* タイトル & 本文 */}
-            <h3 className="text-xs font-bold text-white">{previewPost.title}</h3>
-            {previewPost.content && <p className="text-xs text-zinc-300 font-sans">{previewPost.content}</p>}
+            <h3 className="text-xs sm:text-sm font-bold text-white">{previewPost.title}</h3>
+            {previewPost.content && <p className="text-xs text-zinc-300 font-sans leading-relaxed">{previewPost.content}</p>}
 
-            {/* 画像メディア */}
             {previewPost.imageSrc && (
               <PostMedia
                 log={previewPost}
@@ -198,7 +202,6 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
               />
             )}
 
-            {/* Tech Insights */}
             {stepIdx >= 2 && (
               <div className={`transition-all duration-300 ${stepIdx === 8 && !showInsights ? 'ring-2 ring-cyan-400 rounded-xl animate-pulse' : ''}`}>
                 <PostInsightsSection
@@ -210,7 +213,6 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
               </div>
             )}
 
-            {/* 自律リプライ群 */}
             {stepIdx >= 9 && (
               <div className={`transition-all duration-300 ${stepIdx === 9 && !showReplies ? 'ring-2 ring-pink-500 rounded-xl animate-pulse' : ''}`}>
                 <PostRepliesSection
@@ -221,55 +223,97 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
               </div>
             )}
           </div>
+        </div>
 
-          {/* ② 下部：「ルナたちの会話タイムライン」 */}
-          <div className="space-y-3 bg-black/80 p-4 rounded-2xl border border-pink-500/30 relative">
-            <div className="flex items-center justify-between text-[11px] border-b border-zinc-900 pb-2 text-pink-400 font-bold">
-              <span className="flex items-center gap-1.5">
-                <Brain size={14} className="animate-spin text-cyan-400" />
-                エージェント対話ログ (リアルタイム追従)
-              </span>
+        {/* 3. フローティング会話領域 (最新発言＋ログ履歴トグルボタン) */}
+        <div className="shrink-0 pt-2 space-y-2 border-t border-zinc-900/80 bg-[#08080d]/95 relative z-10">
+          
+          {/* ログ切り替えヘッダーバー */}
+          <div className="flex items-center justify-between text-xs px-1">
+            <span className="text-[11px] font-bold text-pink-400 font-mono flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-pink-500 animate-ping" />
+              ライブ対話パルス
+            </span>
+
+            {/* 見逃しログ見たい人だけが押すトグルボタン */}
+            <button
+              onClick={() => setIsLogHistoryOpen(!isLogHistoryOpen)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:border-pink-500/40 text-[11px] transition-all font-mono cursor-pointer"
+            >
+              <History size={12} className="text-pink-400" />
+              <span>{isLogHistoryOpen ? 'ライブ表示に戻る' : `ログ履歴 (${stepIdx + 1})`}</span>
+              <ChevronDown size={12} className={`transition-transform duration-300 ${isLogHistoryOpen ? 'rotate-180' : ''}`} />
+            </button>
+          </div>
+
+          {/* A. 通常時：最新会話の浮遊カード（スマホ: 1件, PC: 2件） */}
+          {!isLogHistoryOpen ? (
+            <div className="space-y-2 animate-fadeIn font-mono">
+              {/* PC(sm以上)の時だけ直前のやり取りも表示 */}
+              {prevStep && (
+                <div className="hidden sm:flex items-start gap-2.5 bg-zinc-950/60 p-2.5 rounded-xl border border-zinc-900 opacity-60">
+                  <img
+                    src={(AGENT_MEMBERS[prevStep.speakerKey] || AGENT_MEMBERS['spica']).avatar}
+                    alt={prevStep.speakerName}
+                    className="w-7 h-7 rounded-lg object-cover border border-zinc-700 shrink-0"
+                  />
+                  <div className="space-y-0.5 min-w-0">
+                    <span className="text-[10px] font-bold text-zinc-400 block">{prevStep.speakerName}</span>
+                    <p className="text-xs text-zinc-300 font-sans truncate">{prevStep.dialogue}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* 最新の発言 (常にメイン表示) */}
+              <div className="flex items-start gap-2.5 bg-zinc-950/90 p-3 rounded-xl border border-pink-500/40 shadow-lg">
+                <img
+                  src={(AGENT_MEMBERS[currentStep.speakerKey] || AGENT_MEMBERS['spica']).avatar}
+                  alt={currentStep.speakerName}
+                  className="w-8 h-8 rounded-lg object-cover border border-pink-500/60 shrink-0"
+                />
+                <div className="space-y-0.5 min-w-0">
+                  <span className="text-[11px] font-bold text-white block">{currentStep.speakerName}</span>
+                  <p className="text-xs text-pink-100 font-sans leading-relaxed">{currentStep.dialogue}</p>
+                </div>
+              </div>
+
+              {/* アナウンス吹き出し */}
+              {currentStep.announcement && (
+                <div className="p-2 rounded-xl bg-pink-950/80 border border-pink-500/60 text-pink-200 text-[11px] font-sans font-bold flex items-center gap-2">
+                  <Info size={14} className="text-pink-400 shrink-0" />
+                  <span className="truncate">{currentStep.announcement}</span>
+                </div>
+              )}
             </div>
-
-            {/* 会話ログの積み上げ */}
-            <div className="space-y-3 pt-2">
+          ) : (
+            /* B. ログボタン押下時：会話履歴のスライドオーバーレイ */
+            <div className="max-h-48 overflow-y-auto space-y-2 p-2 bg-black/90 rounded-2xl border border-pink-500/30 font-mono animate-fadeIn">
               {STEPS.slice(0, stepIdx + 1).map((step) => {
                 const stepAgent = AGENT_MEMBERS[step.speakerKey] || AGENT_MEMBERS['spica'];
                 return (
-                  <div key={step.id} className="space-y-2 animate-fadeIn">
-                    <div className="flex items-start gap-3 bg-zinc-950/90 p-3 rounded-xl border border-zinc-850">
-                      <img src={stepAgent.avatar} alt={stepAgent.name} className="w-9 h-9 rounded-lg object-cover border border-pink-500/40 shrink-0" />
-                      <div className="space-y-1 min-w-0">
-                        <span className="text-xs font-bold text-white block">{step.speakerName}</span>
-                        <p className="text-xs text-pink-200 font-sans">{step.dialogue}</p>
-                      </div>
+                  <div key={step.id} className="flex items-start gap-2 bg-zinc-950 p-2 rounded-lg border border-zinc-850">
+                    <img src={stepAgent.avatar} alt={stepAgent.name} className="w-6 h-6 rounded object-cover border border-pink-500/30 shrink-0" />
+                    <div className="min-w-0">
+                      <span className="text-[10px] font-bold text-zinc-400 block">{step.speakerName}</span>
+                      <p className="text-[11px] text-pink-200 font-sans">{step.dialogue}</p>
                     </div>
-
-                    {/* アナウンス表示 */}
-                    {step.announcement && (
-                      <div className="p-2.5 rounded-xl bg-pink-950/80 border-2 border-pink-500/80 text-pink-200 text-xs font-sans font-bold flex items-center gap-2 shadow-[0_0_20px_rgba(236,72,153,0.3)]">
-                        <Info size={16} className="text-pink-400 shrink-0" />
-                        <span>{step.announcement}</span>
-                      </div>
-                    )}
                   </div>
                 );
               })}
-              {/* 自動スクロールターゲット */}
-              <div ref={chatBottomRef} />
+              <div ref={historyBottomRef} />
             </div>
-          </div>
+          )}
 
+          {/* 観測ポータルへ入るボタン */}
+          <button
+            onClick={onClose}
+            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-pink-600 to-pink-500 hover:from-pink-500 hover:to-pink-400 text-white font-bold text-xs transition-all shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2 font-sans"
+          >
+            <span>観測ポータルへ入る</span>
+            <ArrowRight size={14} />
+          </button>
         </div>
 
-        {/* 観測ポータルへ入るボタン */}
-        <button
-          onClick={onClose}
-          className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-600 to-pink-500 hover:from-pink-500 hover:to-pink-400 text-white font-bold text-xs sm:text-sm transition-all shadow-xl shadow-pink-600/20 active:scale-98 cursor-pointer flex items-center justify-center gap-2 font-sans shrink-0"
-        >
-          <span>観測ポータルへ入る</span>
-          <ArrowRight size={16} />
-        </button>
       </div>
     </div>
   );
