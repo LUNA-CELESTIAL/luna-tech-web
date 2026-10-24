@@ -85,6 +85,8 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
   const [showReplies, setShowReplies] = useState(false);
   const [isLogHistoryOpen, setIsLogHistoryOpen] = useState(false);
 
+  // プレビュー領域および履歴のスクロール位置参照
+  const previewScrollRef = useRef<HTMLDivElement>(null);
   const historyBottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -113,7 +115,24 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
     return () => clearTimeout(timer);
   }, [isOpen, stepIdx]);
 
-  // ログ履歴が開かれている時だけ最新へ追従
+  // ステップ更新時、Tech Insights開閉時、REPLIES開閉時にプレビュー領域を最下部へ追従スクロール
+  useEffect(() => {
+    if (isOpen && previewScrollRef.current) {
+      // DOM描画更新を確実に行わせるために少しだけ遅延してスクロールを適用
+      const scrollTimer = setTimeout(() => {
+        if (previewScrollRef.current) {
+          previewScrollRef.current.scrollTo({
+            top: previewScrollRef.current.scrollHeight,
+            behavior: 'smooth'
+          });
+        }
+      }, 100);
+
+      return () => clearTimeout(scrollTimer);
+    }
+  }, [stepIdx, showInsights, showReplies, isOpen]);
+
+  // ログ履歴が開かれている時の追従
   useEffect(() => {
     if (isOpen && isLogHistoryOpen) {
       historyBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -154,7 +173,6 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
     ] : []
   };
 
-  // 直近のステップ群（PC: 2件, スマホ: 1件表示用）
   const currentStep = STEPS[stepIdx];
   const prevStep = stepIdx > 0 ? STEPS[stepIdx - 1] : null;
 
@@ -170,7 +188,7 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
           <X size={18} />
         </button>
 
-        {/* 1. ヘッダー (コンパクト化) */}
+        {/* ヘッダー */}
         <div className="shrink-0 space-y-0.5 pr-8 border-b border-zinc-900 pb-2">
           <div className="flex items-center gap-2 text-pink-400 font-mono text-[10px] sm:text-xs font-bold tracking-widest uppercase">
             <Sparkles size={13} className="animate-pulse" />
@@ -181,8 +199,8 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
           </h2>
         </div>
 
-        {/* 2. メイン領域：BUILD_PREVIEW (常に画面の中央〜上部に収まるスクロール枠) */}
-        <div className="flex-1 overflow-y-auto py-3 pr-1 font-mono space-y-3">
+        {/* メイン領域：BUILD_PREVIEW (可変スクロール領域) */}
+        <div ref={previewScrollRef} className="flex-1 overflow-y-auto py-3 pr-1 font-mono space-y-3 scroll-smooth">
           <div className="bg-[#08080c] border border-zinc-850 rounded-2xl p-3 sm:p-4 space-y-3 shadow-inner">
             <div className="flex items-center justify-between text-[10px] text-zinc-500 font-bold border-b border-zinc-900 pb-1.5">
               <span className="flex items-center gap-1.5 text-pink-400">
@@ -225,17 +243,15 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
           </div>
         </div>
 
-        {/* 3. フローティング会話領域 (最新発言＋ログ履歴トグルボタン) */}
+        {/* 下部：ライブ対話パルス ＋ アナウンス ＋ ログボタン */}
         <div className="shrink-0 pt-2 space-y-2 border-t border-zinc-900/80 bg-[#08080d]/95 relative z-10">
           
-          {/* ログ切り替えヘッダーバー */}
           <div className="flex items-center justify-between text-xs px-1">
             <span className="text-[11px] font-bold text-pink-400 font-mono flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-pink-500 animate-ping" />
               ライブ対話パルス
             </span>
 
-            {/* 見逃しログ見たい人だけが押すトグルボタン */}
             <button
               onClick={() => setIsLogHistoryOpen(!isLogHistoryOpen)}
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:border-pink-500/40 text-[11px] transition-all font-mono cursor-pointer"
@@ -246,10 +262,8 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
             </button>
           </div>
 
-          {/* A. 通常時：最新会話の浮遊カード（スマホ: 1件, PC: 2件） */}
           {!isLogHistoryOpen ? (
             <div className="space-y-2 animate-fadeIn font-mono">
-              {/* PC(sm以上)の時だけ直前のやり取りも表示 */}
               {prevStep && (
                 <div className="hidden sm:flex items-start gap-2.5 bg-zinc-950/60 p-2.5 rounded-xl border border-zinc-900 opacity-60">
                   <img
@@ -264,7 +278,6 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
                 </div>
               )}
 
-              {/* 最新の発言 (常にメイン表示) */}
               <div className="flex items-start gap-2.5 bg-zinc-950/90 p-3 rounded-xl border border-pink-500/40 shadow-lg">
                 <img
                   src={(AGENT_MEMBERS[currentStep.speakerKey] || AGENT_MEMBERS['spica']).avatar}
@@ -277,7 +290,6 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
                 </div>
               </div>
 
-              {/* アナウンス吹き出し */}
               {currentStep.announcement && (
                 <div className="p-2 rounded-xl bg-pink-950/80 border border-pink-500/60 text-pink-200 text-[11px] font-sans font-bold flex items-center gap-2">
                   <Info size={14} className="text-pink-400 shrink-0" />
@@ -286,7 +298,6 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
               )}
             </div>
           ) : (
-            /* B. ログボタン押下時：会話履歴のスライドオーバーレイ */
             <div className="max-h-48 overflow-y-auto space-y-2 p-2 bg-black/90 rounded-2xl border border-pink-500/30 font-mono animate-fadeIn">
               {STEPS.slice(0, stepIdx + 1).map((step) => {
                 const stepAgent = AGENT_MEMBERS[step.speakerKey] || AGENT_MEMBERS['spica'];
@@ -304,7 +315,6 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
             </div>
           )}
 
-          {/* 観測ポータルへ入るボタン */}
           <button
             onClick={onClose}
             className="w-full py-2.5 rounded-xl bg-gradient-to-r from-pink-600 to-pink-500 hover:from-pink-500 hover:to-pink-400 text-white font-bold text-xs transition-all shadow-md active:scale-98 cursor-pointer flex items-center justify-center gap-2 font-sans"
