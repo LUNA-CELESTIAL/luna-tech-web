@@ -111,6 +111,7 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
     return () => clearTimeout(timer);
   }, [isOpen, stepIdx]);
 
+  // 最新の会話ステップが追加されるたびに最下部へ自動スクロール
   useEffect(() => {
     if (isOpen) {
       chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -170,17 +171,17 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
             <span>ABOUT LUNA'S CONSTELLATIONS</span>
           </div>
           <h2 className="text-base sm:text-lg font-black text-white leading-snug">
-            8人のAIによる自律生成ライブプロセスの観測
+            8人のAIによる自律生成ライブプロセス
           </h2>
         </div>
 
-        {/* メインエリア（縦スクロール領域） */}
+        {/* スクロールエリア（1つの連続したフロー） */}
         <div className="space-y-4 overflow-y-auto pr-1 flex-1 font-mono">
           
-          {/* ① 上部：できあがっていく投稿（BUILD_PREVIEW） ※stickyを外して通常配置 */}
-          <div className="bg-[#08080c] border border-zinc-850 rounded-xl p-3 space-y-2.5 shadow-inner">
+          {/* ① 上部：完成していく投稿プレビュー（sticky解除） */}
+          <div className="bg-[#08080c] border border-zinc-850 rounded-xl p-3.5 space-y-3 shadow-inner">
             <div className="flex items-center justify-between text-[10px] text-zinc-500 font-bold border-b border-zinc-900 pb-1">
-              <span>// BUILD_PREVIEW (リアルタイム更新中)</span>
+              <span>// BUILD_PREVIEW (組み立て中のポスト)</span>
               <span className="text-pink-400 font-mono">Step {stepIdx + 1}/{STEPS.length}</span>
             </div>
 
@@ -216,12 +217,12 @@ export default function AboutOverlay({ isOpen, onClose }: AboutOverlayProps) {
             )}
           </div>
 
-          {/* ② 下部：エージェント対話ログ */}
+          {/* ② 下部：会話ログの積み上げ */}
           <div className="space-y-3 bg-black/80 p-3.5 rounded-2xl border border-pink-500/30 relative">
-            <div className="flex items-center justify-between text-[11px] border-b border-zinc-900 pb-2 text-pink-400 font-bold sticky top-0 bg-black/95 z-10 pt-1">
+            <div className="flex items-center justify-between text-[11px] border-b border-zinc-900 pb-2 text-pink-400 font-bold">
               <span className="flex items-center gap-1.5">
                 <Brain size={14} className="animate-spin text-cyan-400" />
-                エージェント対話ログ (自動追従)
+                エージェント対話ログ
               </span>
             </div>
 
