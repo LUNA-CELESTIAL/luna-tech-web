@@ -35,47 +35,132 @@ JSON_WORKFLOW_PATH = Path(os.getenv("COMFYUI_JSON_PATH", str(DEFAULT_JSON_PATH))
 MODEL_LUNA_FAMILY = "krea2Cocoamix_v004beta.safetensors"
 MODEL_HINA_KOHAKU = "moodyCutieMixFreeKrea2_v60_int8.safetensors"
 
-# 各メンバーの固定外見プロンプト（純粋な外見定義）
+# 各メンバーの固定外見プロンプト（8名完全版）
 MEMBER_BASE_PROMPTS = {
     "luna": (
-        "An anime style, a lovely girl with long brown hair and expressive eyes, "
-        "wearing a black cyber choker with a glowing pink crown icon."
+        "a lovely long-haired girl with warm brown hair. She wears a modern Japanese-style pink outfit with soft frills. "
+        "On her neck, she wears a black cyber choker with a glowing pink crown icon. eye Highlight. "
+        "A black headband carries two exceptionally long black bunny ears with hot-pink inner panels, one upright and one bent sideways. "
+        "Two small glossy red horns and black-and-pink bows sit at the ear bases. "
+        "[Outerwear] A cropped hot-pink bolero has short rounded puff sleeves, black cuffs, pointed black-edged lapels and small silver studs. "
+        "A black heart-and-arrow emblem sits on the left chest. The back has an open triangular area above a black horizontal strap with a small pink heart. "
+        "[Top] A fitted glossy black sweetheart corset has hot-pink piping, curved bust panels, vertical seams, small metal fittings and a pink-edged black heart between the bust panels. "
+        "Two short pointed front hem panels leave a strip of abdomen visible above the shorts. "
+        "[Bottom] Fitted hot-pink short shorts have black edging, vertical side lines, small silver studs and small black bows at the outer leg openings. "
+        "A broad black belt has a large black heart buckle outlined in hot pink and narrow pink-edged loops. "
+        "[Legwear and footwear] Sheer black thigh-high stockings have broad floral lace tops, small pink bows and dark heart centers. "
+        "Glossy black pointed-toe pumps have tall heels edged in pink and slim black ankle straps fastened with pink-edged heart buckles. "
+        "[Accessories] Short black fingerless gloves have hot-pink heart patches and narrow pink wrist stripes. A black choker and small dangling earrings carry pink-edged hearts. "
+        "A black heart-shaped hip bag has a large pink heart-and-arrow graphic, silver rings and a narrow black strap. "
+        "Hot-pink bat-wing membranes have black ribs and one small black heart on each wing. A slender black tail ends in a large pointed heart divided into glossy black and hot-pink panels."
     ),
     "spica": (
-        "An anime style, a cool and beautiful girl with dark navy long hair, "
-        "calm expression with deep blue-green eyes, wearing a sleek dark blue coat with cyan accents. "
-        "On her neck, a black cyber choker with a glowing cyan globe icon."
+        "a cool and beautiful girl with dark navy long hair. She has a calm and slightly distant expression with deep blue-green eyes. "
+        "On her neck, she wears a black cyber choker with a glowing cyan globe icon. "
+        "A broad black tricorn hat has gold edging, a central gold skull with bat wings and crossed bones, a long burgundy feather plume and a hanging gold coin chain. "
+        "Two ridged red horns project through the front sides of the hat. "
+        "[Blouse and corset] A cream off-the-shoulder blouse has a ruffled neckline, a small red front bow and elbow-length puff sleeves gathered into layered frilled cuffs. "
+        "Brown shoulder straps with gold buckles pass over the bare shoulders. A fitted dark-brown leather corset has visible vertical panels, gold eyelets, crossed black front lacing and pointed lower edges. "
+        "[Bottom] Black fitted short shorts sit beneath an open-front burgundy overskirt. Its long uneven side and back panels are edged in gold scrolling trim, with ragged navy underlayers and torn openings near the lower edges. "
+        "A wide angled brown belt has a large gold rectangular buckle. Gold chains and round coin pendants drape over the right hip, while a small brown flap pouch with a gold skull plate and buckle sits at the left hip. "
+        "A narrow brown buckled band with a hanging gold ring circles the left upper thigh. "
+        "[Footwear] Brown leather knee-high boots have broad turned-down navy cuffs edged in gold, buckled leather straps around the upper shafts and ankles, shaped seams, softly creased legs, rounded toes and medium block heels. "
+        "The thighs and knees remain bare above the boot tops. "
+        "[Accessories] A black choker has small gold fittings, a red jewel and a hanging gold anchor. Gold earrings hold red oval stones and small rings. "
+        "A broad brown studded cuff circles the right wrist; red cords and small coin pendants circle the left. A small gold ring sits on the right hand. "
+        "Navy bat wings have aged-gold ribs, ragged perforated edges and burgundy patches outlined by visible gold stitches. "
+        "A brown tail ends in a glossy burgundy spade, with gold rings and hanging coin charms beneath the tip."
     ),
     "sirius": (
-        "An anime style, vibrant pink short hair styled with small clips, "
-        "playful amber-golden eyes, stylish white cyber-jacket with neon accents. "
-        "On her neck, a black cyber choker with a glowing pink lightning icon."
+        "energetic girl with vibrant pink short hair styled with small clips. She has a bright and confident smile with playful amber-golden eyes subtle neon accents. "
+        "On her neck, she wears a black cyber choker with a glowing pink lightning icon. "
+        "Large black ribbon bows and short silver chains sit near two curved dark graphite horns with black bases and small silver rings. "
+        "[Top] An oversized charcoal knitted pullover with a broad ribbed diagonal neckline resting below the shoulders. A pale diamond-mesh inner top rises above the neckline to cover the upper chest and shoulders, beside thin black straps. "
+        "The pullover has loose draped folds, a partly tucked front, long balloon sleeves and ribbed cuffs. Long open strips along the outer sleeves are crossed by pale grey ribbon lacing threaded through silver eyelets; loose ribbon ends hang near the cuffs. "
+        "[Bottom] A very short grey-and-black tartan wrap skirt with angular overlapping front panels, an uneven pointed hem and small black buckled side straps. "
+        "A black waist belt has a large round silver buckle, and two silver chain loops with pointed star pendants drape across the hips. "
+        "[Legwear and footwear] Fine black diamond-fishnet tights cover the legs. A black thigh strap carries silver rings and small hanging pointed ornaments. "
+        "Slouchy charcoal ribbed leg covers bunch around the lower calves and ankles, with pale crossed side lacing and small metal rings. "
+        "Glossy black platform ankle boots have rounded reinforced toes, multiple broad silver-buckled straps, deep black tread, graphite-grey sole edges and tall block heels. "
+        "[Accessories] A narrow black buckle choker holds a small pendant. Smoky black bat wings have thin dark ribs and silver chains with pointed star charms hanging from the outer tips. "
+        "A thin black tail curves to a broad graphite spade-heart tip, with a short silver chain and pointed star pendant beneath it."
     ),
     "stella": (
-        "An anime style, warm amber-brown short hair with a small braid, "
-        "bright golden-amber eyes, amber-toned vintage mechanic dress. "
-        "On her neck, a black cyber choker with a glowing amber gear icon."
+        "a cute and energetic girl with warm amber-brown short hair with a small braid. She has a curious and determined expression with bright golden-amber eyes. "
+        "On her neck, she wears a black cyber choker with a glowing amber gear icon. "
+        "Two curved bronze horns have segmented spiral ridges. Round bronze-rimmed goggles sit across their roots on a dark strap, and small gold gear-and-key earrings hang beside the hair. "
+        "[Blouse and waistcoat] An ivory blouse has a small stand collar, a large curved chest opening, narrow decorative lines, long lightly puffed sleeves and fitted cuffs with gold buttons. "
+        "Dark brown buckled bands circle the upper arms. A short fitted dark-brown waistcoat has bronze-edged curved panels, shoulder straps, small brass fittings and overlapping buckled bands below the bust. "
+        "On the back, dark straps cross around a large round brass gear ornament between the wing roots. "
+        "[Bottom] Camel high-waisted shorts have rounded front tucks and short turned hems. A narrow brown waist belt carries brass buckles, loops and small rings. "
+        "Short split dark-leather apron panels hang over the outer thighs, with rounded lower edges, rows of brass rivets, fine border stitching and small straps and buckles. "
+        "A dark-brown flap pouch sits at one hip, and a brass chain with a small wheel-shaped charm drapes across the front. A narrow brown buckled band circles the left upper thigh. "
+        "[Legwear and footwear] Smooth sheer warm-brown tights cover both legs. Dark-brown lower-calf gaiters have broad buckled bands and overlapping leather panels. "
+        "Heavy brown ankle boots have several large brass-buckled straps, ribbed bronze toe caps, thick dark soles and low block heels. "
+        "[Accessories] Amber-brown bat-wing membranes sit within articulated bronze ribs, with circular gear-shaped joints, small bolts and long hooked lower tips. "
+        "A segmented bronze-and-brown tail has regularly spaced brass collars and a large elongated faceted arrowhead with raised angular ridges."
     ),
     "selene": (
-        "An anime style, long silver-purple hair in a soft half-up style with lavender ribbons, "
-        "glowing emerald-green eyes, lavender and white dress with delicate lace. "
-        "On her neck, a black cyber choker with a glowing emerald crescent moon icon."
+        "a graceful and sweet girl with elegant long silver-purple hair in a soft half-up style with layered side-swept bangs, small side braids and purple ribbon bows. "
+        "Two glossy violet horns curve upward and outward, with fine pale bands and small hanging faceted charms near their bases. "
+        "She has a gentle and slightly shy expression with glowing emerald-green eyes. On her neck, she wears a black cyber choker with a glowing emerald crescent moon icon. "
+        "[Capelet] A short midnight-blue capelet has a high collar, gold piping, scattered gold stars and fine constellation lines. "
+        "Its layered scalloped edge has a sheer pale-lavender ruffled border. A gold crescent surrounding a pale round jewel closes the front above a small hanging violet crystal. "
+        "A large gold circular star chart and crescent decorate the back. "
+        "[Top] A fitted deep-violet velvet sweetheart bustier with shaped vertical panels, three pale-gold four-pointed star clasps down the front and two pointed lower tips. "
+        "The dark back panel has central crossed lacing. The upper chest is bare between the bustier and capelet, and a narrow strip of midriff separates the bustier from the waist belt. "
+        "[Bottom] A short full skirt with overlapping pointed and flared panels, shifting from midnight blue to violet and lavender toward the hem. "
+        "Small pale stars and bright diamond shapes cover the fabric, with lavender ruffles beneath the uneven hem. A black belt with gold fittings circles the waist; fine gold chains and hanging violet-and-white crystal drops drape over the hips. "
+        "[Legwear and footwear] Sheer smoky-violet tights carry pale star constellations and fine dotted connecting lines. "
+        "Metallic silver-lavender ankle boots have purple front lacing, shaped toe panels, block heels and buckled upper straps with small crescent ornaments. "
+        "[Accessories] A narrow dark choker with a small pale oval fitting sits above the capelet collar. A dark book-shaped hip bag has pale-gold borders, a circular crescent-and-star design and a chain strap. "
+        "Purple ribbon wrist bows carry small faceted pendants, and long earrings combine circular metal shapes with small hanging crystals. "
+        "Lavender bat wings have dark-violet ribs, scattered pale-gold stars and dangling star and diamond charms. A thin purple tail ends in a silver crescent with a small suspended violet crystal."
     ),
     "nano": (
-        "An anime style, soft pastel cream-colored bob hair with orange-gradient tips, "
-        "warm ruby-pink eyes, oversized soft pastel hoodie. "
-        "On her neck, a black cyber choker with a glowing pink heart icon."
+        "cute youngest girl with soft pastel cream-colored bob hair featuring vibrant orange-gradient tips. She has a bright, playful wink with warm ruby-pink eyes. "
+        "On her neck, she wears a black cyber choker with a glowing pink heart icon. "
+        "A black two-pointed drooping cloth hat has magenta and turquoise inset panels, small pointed metal decorations, ribbon bows and long diamond-shaped gem pendants at the two tips. "
+        "Two segmented black horns with magenta tips rise in front of the hat. Small magenta and turquoise bows cluster around the horn roots. "
+        "[Top] A fitted black corset has a curved sweetheart edge with fine pale lace trim, magenta and turquoise vertical side panels and small heart and diamond-shaped metal ornaments down the center. "
+        "A magenta heart jewel sits between the bust panels. Narrow black shoulder straps have small rectangular buckles, and the back has magenta crossed lacing. "
+        "Separate short black puff sleeves and layered arm ruffles have small magenta-and-turquoise ribbon bows. "
+        "Several diagonal black waist belts carry champagne-toned metal buckles and rings; fine chains loop across the hips. "
+        "[Bottom] A very short, exceptionally full layered skirt has magenta upper panels patterned with dark bat, heart and curling motifs, turquoise lower panels with dark ornamental patterns, "
+        "thin pale ruffled edges and broad black ruffles and lace between and beneath the colored layers. "
+        "Black-and-colored bows, small heart fittings, pointed ribbon tails and suspended diamond-shaped gems decorate the hips and skirt sides. "
+        "[Legwear and footwear] The thigh-high stockings form a mismatched pair: one has broad magenta-and-black horizontal stripes and the other turquoise-and-black stripes. "
+        "Wide black thigh bands sit above the stockings, with narrow suspender straps, metal rings, short chains and colored diamond pendants. "
+        "Glossy black calf boots have thick black fur cuffs, tall block heels, heavy front platforms, deep tread soles, crossed buckled straps and colored inserts. Magenta diamond-shaped charms hang near the outer boot straps. "
+        "[Accessories] Short black fingerless gloves have ruffled cuffs and colored bows. A black buckle choker holds a turquoise jewel, and small earrings carry colored diamond drops. "
+        "The bat wings form a two-color pair, one with a magenta membrane and the other turquoise, both with black ribs and pointed edges. "
+        "A thin black tail ends in a glossy magenta-and-black pointed heart, with a small metal bell and a magenta diamond pendant hanging below it."
     ),
     "hina": (
-        "16-year-old Japanese girl, brown hair with subtle pink tips styled in a high ponytail with blunt bangs, "
-        "slender facial features, fair clear skin with a small mole on cheek. "
-        "Wearing a white cotton hoodie layered under a navy blue wool blazer jacket with gold metallic buttons, "
-        "and a navy blue plaid pleated mini skirt, white crew socks, white platform sneakers."
+        "A candid, raw studio portrait photo of a 16-year-old Japanese high school girl with slender, sharp facial features and a defined jawline. "
+        "She is looking directly into the camera lens with a calm, slightly cool expression. Her hair is brown with subtle pink tips, styled in a high ponytail with swept bangs and an orange-and-black striped bow at each side. "
+        "A black headband carries two smooth curved black horns and small orange jack-o'-lantern ornaments with green leaves. "
+        "She has natural, clear eyes with a focused gaze and bright catchlights, a small refined nose, and natural lips. Her fair skin is completely smooth, clear, and flawless, featuring a subtle small facial mole on her cheek and a small mole on her shoulder for realistic detail, with no freckles, no blemishes, and no heavy makeup. "
+        "[Outfit] A pumpkin-orange outfit has a gathered low square neckline edged in black scallops, three small black front buttons and rounded short puff sleeves. The sleeves end in orange ruffles, narrow black bands and black bows. "
+        "A wide black corset waist has tall curved panels, metal eyelets, bright orange crisscross front lacing and an orange bow above long dark ribbon ends. The back has narrow black shoulder straps, a low open upper-back area and black waist lacing. "
+        "The lower section forms very short rounded balloon shorts with deep orange folds and pointed black triangular edging around the leg openings. "
+        "[Legwear and footwear] Broad orange-and-black horizontal stripes cover thigh-high stockings, with black top bands and small purple bows at the outer thighs. Glossy black mid-calf platform boots have rounded toes, front lacing, two broad straps with large silver rectangular buckles, orange trim inside the tops and very thick lug soles. "
+        "[Accessories] An orange pumpkin pendant sits on a black choker with small purple and dark beads. Small pumpkin earrings hang beside the hair. Orange ruffled wrist cuffs have black ribbon ties. "
+        "A rounded orange pumpkin hip bag has a green stem and leaves, a black triangular-eyed zigzag jack-o'-lantern face, a purple star detail and black edging. Orange bat wings have black ribs, pointed tips and black scalloped trim. "
+        "A black tail ends in an orange pointed heart-arrow tip, with purple and black-and-orange wrapped-candy charms hanging from a small bow near the end."
     ),
     "kohaku": (
-        "16-year-old Japanese girl, light ash brown hair styled in a messy low side ponytail on the left with curtain bangs, "
-        "soft youthful baby face with round features, large natural hazel brown eyes, clear light skin with a small mole on cheek. "
-        "Wearing a white cotton collared blouse with a purple plaid ribbon bow tie, navy blue sleeveless V-neck jumper dress with a gold belt."
+        "A candid, raw studio portrait photo of a 16-year-old Japanese high school girl with a soft, youthful baby face and round features. "
+        "She is looking directly into the camera lens with a calm, gentle expression. Her hair is light ash brown, styled in a messy low side ponytail on the left with loose strands framing her face and curtain bangs accented by a small dark-red star-shaped ornament. "
+        "Two glossy segmented blue-black horns curve upward. Small red-and-silver drop earrings hang beside the hair. "
+        "She has large, natural hazel brown eyes with a gentle gaze and clear bright catchlights, a small low nose bridge, soft rounded cheeks, and full natural lips. Her skin is clear and smooth with a natural light skin tone, featuring a subtle small facial mole on her cheek for a realistic look, with no heavy makeup. "
+        "[Top] A dark-navy cropped sailor-collar jacket has broad pointed front collar panels and a rectangular back collar bordered by two narrow cream stripes. A large mulberry bow at the chest has a small silver bat-shaped central brooch. "
+        "Dark diamond mesh fills the area above the neckline below a high black lace choker. The long sleeves have softly gathered shoulders, silver eyelets and mulberry ribbon lacing along the outer forearms. Cream-striped cuffs end in black lace frills. "
+        "A wide black leather corset belt has pointed front panels, two horizontal silver-buckled straps, small rivets and central back lacing. Fine silver chains and narrow red crystal pendants hang from the hips. "
+        "[Bottom] A very short full navy box-pleated skirt has mulberry inset panels between the dark pleats. Small dark ornamental motifs sit near the hem, with a narrow black floral-lace underlayer extending below it. "
+        "[Legwear and footwear] Continuous sheer charcoal tights cover the legs. Glossy black platform ankle boots have rounded toes, several broad buckled straps, small pointed silver ornaments, thick front platforms and tall block heels with mulberry-red rear faces. "
+        "[Accessories] Broad mulberry bat-wing membranes are divided by dark navy-black ribs, with sharply hooked outer tips, pointed lower edges and silver star-shaped fittings near the upper tips and diamond-shaped pendants at the lower points. "
+        "A thin dark tail ends in a glossy pointed heart with mulberry inner panels and a small silver fitting above it."
     )
 }
 
@@ -108,10 +193,7 @@ def parse_llm_json_safely(raw_text: str) -> dict:
     if not json_blocks:
         raise ValueError("テキスト内に有効なJSON構造（{...}）が見つかりませんでした。")
 
-    # 一番最後のJSONブロックを採用（Ollamaは末尾に本番JSONを出力するため）
     json_str = json_blocks[-1]
-
-    # 文法エラー自動補正（末尾カンマ削除、クォート補正）
     json_str = re.sub(r',\s*([}\]])', r'\1', json_str)
     json_str = re.sub(r"(?<=[\{\,])\s*\'([^\']+)\'\s*:", r'"\1":', json_str)
 
@@ -142,7 +224,6 @@ def generate_situational_json_realistic(tweet_text: str) -> dict:
 
     except Exception as e:
         print(f"[WARN] Ollama Realistic JSON解析失敗、デフォルト値へフォールバックします: {e}")
-        print(f"[DEBUG] パース失敗対象の生テキスト:\n{raw_text if 'raw_text' in locals() else 'None'}")
         return {
             "location": "clean minimalist indoor space, wooden desk",
             "action_and_objects": "sitting at a wooden desk, handling essential tools",
@@ -151,7 +232,6 @@ def generate_situational_json_realistic(tweet_text: str) -> dict:
             "expression_and_mood": "calm thoughtful expression, soft natural lighting"
         }
     finally:
-        # 🚨 成功・失敗にかかわらず確実にVRAMからモデルを破棄！
         unload_ollama_vram("muse-unce:latest")
 
 def build_realistic_style_prompt_from_json(base_prompt: str, tweet_text: str) -> str:
@@ -193,7 +273,6 @@ def generate_situational_json_anime(tweet_text: str) -> dict:
 
     except Exception as e:
         print(f"[WARN] Ollama Anime JSON解析失敗、デフォルト値へフォールバックします: {e}")
-        print(f"[DEBUG] パース失敗対象の生テキスト:\n{raw_text if 'raw_text' in locals() else 'None'}")
         return {
             "location": "vibrant anime background style, clean stylized background art",
             "action_and_objects": "sitting comfortably at a modern cafe table",
@@ -202,7 +281,6 @@ def generate_situational_json_anime(tweet_text: str) -> dict:
             "style_and_lighting": "soft studio lighting, vibrant colors, highly detailed"
         }
     finally:
-        # 🚨 成功・失敗にかかわらず確実にVRAMからモデルを破棄！
         unload_ollama_vram("muse-unce:latest")
 
 def build_anime_style_prompt_from_json(base_prompt: str, tweet_text: str) -> str:
