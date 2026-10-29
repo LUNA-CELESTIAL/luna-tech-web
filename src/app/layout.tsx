@@ -1,10 +1,8 @@
-'use client';
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import Header from "@/components/layout/Header";
 import FloatingAgent from "@/components/agent/FloatingAgent";
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
@@ -14,9 +12,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-  const isTopPage = pathname === '/';
-
   return (
     <html
       lang="ja"
@@ -32,45 +27,14 @@ export default function RootLayout({
         <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))]" />
 
         {/* 📟 LULU_OS 上部システムステータスバー */}
-        <header className="w-full bg-[#020204]/90 backdrop-blur-md border-b border-zinc-900 px-4 py-3 text-[13px] text-zinc-500 select-none sticky top-0 z-40 shrink-0">
-          <div className="w-full flex items-center justify-between gap-x-3">
-            <div className="flex items-center gap-2">
-              {isTopPage ? (
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
-                  <span className="text-zinc-200 font-black tracking-wide text-[12px] sm:text-[13px]">LUNA_CORE</span>
-                </div>
-              ) : (
-                <Link
-                  href="/"
-                  className="flex items-center gap-1.5 text-pink-400 hover:text-pink-300 font-black tracking-tight text-[12px] sm:text-[13px] bg-pink-950/10 border border-pink-900/40 px-2 py-0.5 rounded-lg active:scale-95 transition-all shadow-[0_0_10px_rgba(244,114,182,0.1)]"
-                >
-                  <span>◀</span> <span>SYS_EXIT</span>
-                </Link>
-              )}
-
-              <span className="text-zinc-800" aria-hidden="true">|</span>
-              <span className="text-zinc-400 font-bold text-[10px] bg-zinc-950 px-1.5 py-0.5 rounded border border-zinc-800">v2.0</span>
-              <span className="text-zinc-800" aria-hidden="true">|</span>
-              <span className="text-[11px] font-mono tracking-tight text-zinc-600">
-                LOC: <span className="text-zinc-400 font-medium">{isTopPage ? 'ROOT' : pathname.toUpperCase().replace('/', '')}</span>
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3 sm:gap-4 font-mono text-[10px] sm:text-[11px] text-zinc-600">
-              <div>
-                <span className="text-zinc-700">SYS_STBL:</span> <span className="text-zinc-400 font-bold">100%</span>
-              </div>
-            </div>
-          </div>
-        </header>
+        <Header />
 
         {/* 🌌 メインコンテンツエリア */}
         <main className="relative z-10 flex-1 flex flex-col w-full">
           {children}
         </main>
 
-        {/* 🌟 画面右下に固定配置されるキャラクターウィジェット（ページのどこにいても常駐） */}
+        {/* 🌟 画面右下に固定配置されるキャラクターウィジェット */}
         <FloatingAgent />
 
         {/* 📑 最下部：ボトムフレームフッター */}

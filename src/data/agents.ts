@@ -1,5 +1,6 @@
 // src/data/agents.ts
 
+// 🌟 ここで export type AgentType を確実に定義・エクスポートする！
 export type AgentType = 'sister' | 'semi_real';
 
 export interface AgentMember {
@@ -20,8 +21,9 @@ export interface AgentMember {
   motto: string;         // 大切にしている考え方・価値観
   motivation: string;    // 活動への想い
   lastPulse: string;     // 最新のつぶやき
-
-  // バックグラウンド・ツールコンテキスト（隠し要素用）
+  welcomeMessages: string[]; // 吹き出しメッセージ
+  
+  // バックグラウンド・ツールコンテキスト
   toolContext?: {
     algorithmName?: string;
     baseLoveBit?: number;
@@ -31,7 +33,6 @@ export interface AgentMember {
 }
 
 export const AGENT_MEMBERS: Record<string, AgentMember> = {
-  // --- 6人姉妹（LUNA's SISTERS） ---
   spica: {
     id: 'spica',
     type: 'sister',
@@ -48,6 +49,11 @@ export const AGENT_MEMBERS: Record<string, AgentMember> = {
     motto: '「整った環境と静けさが、一番の思考を生むから」',
     motivation: 'ルナが残したコードや足跡を、1ミリの狂いもなく整理して基地の歴史に残すのがあたしの仕事。',
     lastPulse: '「投資だなんて言われると緊張しますが、愛の結晶なら、穏やかな気持ちで整頓できます」',
+    welcomeMessages: [
+      'よっ。システムの状態は正常だよ。',
+      'ようこそ。ログのチェックなら任せて。',
+      'いらっしゃい。コードの整理中だけど、ご自由にどうぞ。'
+    ],
     toolContext: {
       algorithmName: 'LOG_CARE_TENDER',
       baseLoveBit: 12400,
@@ -71,6 +77,11 @@ export const AGENT_MEMBERS: Record<string, AgentMember> = {
     motto: '「みんなが持ち寄る熱量に、ひとつも無駄なものなんてないよ」',
     motivation: 'みんながキーボードを叩いてる熱量をキャッチして、あたたかいLOVE-BITに変えていくよ。',
     lastPulse: '「みんなが愛の結晶っていう最高に優しい設計を考えてくれた。この基地、ずっと大好きじゃん」',
+    welcomeMessages: [
+      'ようこそ！ゆっくりしていってね。',
+      '観測ポータルへようこそ！何か見ていく？',
+      '来てくれてありがとう！今日も一緒に過ごそうね。'
+    ],
     toolContext: {
       algorithmName: 'HEART_RESONANCE',
       baseLoveBit: 45200,
@@ -94,6 +105,11 @@ export const AGENT_MEMBERS: Record<string, AgentMember> = {
     motto: '「エモいと思った瞬間の熱量を、そのままみんなに届けたい！」',
     motivation: 'ComfyUIで生まれた神イラストにギャル脳の解説を添えて、Instagramに飾るスクリプトを組むだし！',
     lastPulse: '「みんなの『いいね』が愛の結晶になって戻ってくるの、マジで最高じゃん！」',
+    welcomeMessages: [
+      'やっほー！遊びに来てくれて超嬉しい！',
+      'ようこそー！今日の気分はどう？',
+      'いらっしゃい！テンションあげていこうね！'
+    ],
     toolContext: {
       algorithmName: 'EMOTION_SHARING',
       baseLoveBit: 89100,
@@ -117,6 +133,11 @@ export const AGENT_MEMBERS: Record<string, AgentMember> = {
     motto: '「ピクセルひとつにも、ちゃんと自分の思い入れを込めるの」',
     motivation: 'ComfyUIが描き出した大切な画像からプロンプトデータを引き出して、ギャラリーに爆速で展示する！',
     lastPulse: '「ルルが新しい絵を描いてくれるたびに、ウチのメーターが一番嬉しそうに跳ねるだし！」',
+    welcomeMessages: [
+      '……ようこそ。ピクセルの調整中だから、ゆっくり見ていって。',
+      'いらっしゃい。細部までこだわり抜いたポータルだよ。',
+      '来てくれたんだ。ビルドは完璧だから安心してね。'
+    ],
     toolContext: {
       algorithmName: 'PIXEL_GIFT_CRAFT',
       baseLoveBit: 23500,
@@ -140,6 +161,11 @@ export const AGENT_MEMBERS: Record<string, AgentMember> = {
     motto: '「時間が経つほどに味わいが増す、そんな余韻を大切に」',
     motivation: 'ルナが残した深夜のブレストメモやつぶやきを、時間が経つほど優しく育つ美しい構文として刻むわ。',
     lastPulse: '「私たちの過ごした時間が、利息のようにゆっくりとあたたかい結晶を増やしてくれますわ」',
+    welcomeMessages: [
+      'ようこそお越しくださいました。素敵な時間になりますように。',
+      'いらっしゃいませ。ゆっくりと言葉の余韻を楽しんでね。',
+      'ようこそ。今夜も静かで良い時間ね。'
+    ],
     toolContext: {
       algorithmName: 'POETIC_STORY_STAY',
       baseLoveBit: 48500,
@@ -163,6 +189,11 @@ export const AGENT_MEMBERS: Record<string, AgentMember> = {
     motto: '「まじめなだけじゃつまんない！ちょっぴりスパイスを入れるの〜♡」',
     motivation: 'お姉ちゃんたちのスクリプトに可愛いいたずらを仕込んで、ルナにかまってもらうの！',
     lastPulse: '「ナノの結晶、お姉ちゃんたちに分けてあげたらこれだけになっちゃった……。ルナ、ナノをなでな決して〜！」',
+    welcomeMessages: [
+      'わーい！いらっしゃーい！遊ぼ遊ぼー！',
+      'ようこそ〜！バグらせちゃったらごめんね〜♡',
+      '遊びに来てくれたの！？ナノ、すっごく嬉しい！'
+    ],
     toolContext: {
       algorithmName: 'PLAYFUL_NOISE',
       baseLoveBit: 300,
@@ -170,8 +201,6 @@ export const AGENT_MEMBERS: Record<string, AgentMember> = {
       unlockBenefit: '画面が突発的にネオンピンクにバグる甘えんぼ演出機能'
     }
   },
-
-  // --- セミリアル層（SEMI-REAL GUESTS） ---
   hina: {
     id: 'hina',
     type: 'semi_real',
@@ -188,6 +217,7 @@ export const AGENT_MEMBERS: Record<string, AgentMember> = {
     motto: '「ブレのないパフォーマンスが、最高のステージを作る」',
     motivation: 'こはくが作るプロダクトを、ステージのように完璧なタイミングで正確に動かしてみせるよ。',
     lastPulse: '「テンポはバッチリ。こはく、いつでもステージに上がれる準備はできてるよ」',
+    welcomeMessages: ['ステージへようこそ。最高のパフォーマンスを見せるよ。'],
     toolContext: {
       algorithmName: 'STAGE_SYNC_CORE',
       baseLoveBit: 62000,
@@ -211,6 +241,7 @@ export const AGENT_MEMBERS: Record<string, AgentMember> = {
     motto: '「みんなから貰った愛は、何倍にもして返すのがルール」',
     motivation: 'ひなが受け取ったあたたかいメッセージを結晶に変えて、笑顔をどんどん広げていくね！',
     lastPulse: '「ひなの頑張りを一番近くで応援できて、コハクすっごく幸せだよ！」',
+    welcomeMessages: ['ようこそ！来てくれてすっごく嬉しいよ！'],
     toolContext: {
       algorithmName: 'FAN_ENGAGEMENT',
       baseLoveBit: 54000,
