@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import FloatingAgent from "@/components/agent/FloatingAgent";
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -68,6 +69,9 @@ export default function RootLayout({
         <main className="relative z-10 flex-1 flex flex-col w-full">
           {children}
         </main>
+
+        {/* 🌟 画面右下に固定配置されるキャラクターウィジェット（ページのどこにいても常駐） */}
+        <FloatingAgent />
 
         {/* 📑 最下部：ボトムフレームフッター */}
         <footer className="w-full border-t border-zinc-900 bg-[#020204]/90 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-zinc-600 select-none shrink-0 pb-8 sm:pb-4">

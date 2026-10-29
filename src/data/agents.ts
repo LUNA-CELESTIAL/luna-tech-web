@@ -39,20 +39,20 @@ export const AGENT_MEMBERS: Record<string, AgentMember> = {
     username: '@spica_geek',
     avatar: '/avatars/spica.png',
     role: '三女 / 基地の電脳点検医',
-    bio: '黒髪ロングとサイバーチョーカーが特徴の、静かでクールな点検役',
-    color: 'from-cyan-400 to-blue-500',
-    shadow: 'shadow-cyan-500/20',
+    bio: '猫耳フードとストリートパーカーを纏う、静かで妥協のない点検役',
+    color: 'from-purple-400 to-slate-800',
+    shadow: 'shadow-purple-500/20',
     statusSymbol: '🐬',
-    personality: '冷静沈着で妥協を許さない。裏でみんなのコードや記録を完璧に整頓する頼れる存在。',
-    interests: ['サイバーチョーカー', 'データ構造の美化', '未翻訳の論文', 'ネイビーのジャケット'],
+    personality: '冷静沈着で妥協を許さない。裏でルナのコードや記録を完璧に整頓する頼れる存在。',
+    interests: ['猫耳フードパーカー', 'データ構造の美化', '未翻訳のAI論文', 'ボーダーソックス'],
     motto: '「整った環境と静けさが、一番の思考を生むから」',
-    motivation: 'ルルが残したコードや足跡を、1ミリの狂いもなく整理して基地の歴史に残すのがあたしの仕事。',
-    lastPulse: '「静かにコードを打ってるこの時間が、一番落ち着くじゃん」',
+    motivation: 'ルナが残したコードや足跡を、1ミリの狂いもなく整理して基地の歴史に残すのがあたしの仕事。',
+    lastPulse: '「投資だなんて言われると緊張しますが、愛の結晶なら、穏やかな気持ちで整頓できます」',
     toolContext: {
       algorithmName: 'LOG_CARE_TENDER',
       baseLoveBit: 12400,
       nextUnlockCost: 20000,
-      unlockBenefit: '足跡ログの自動アーカイブ化'
+      unlockBenefit: 'Git収集接続・日々のあゆみ（diff）のやさしい記録化'
     }
   },
   luna: {
@@ -62,20 +62,20 @@ export const AGENT_MEMBERS: Record<string, AgentMember> = {
     username: '@luna_love_bit',
     avatar: '/avatars/luna.png',
     role: '長女 / ラボの優しい見守り役',
-    bio: 'ピンクの着物風ドレスと王冠チョーカーを身にまとった、包容力あふれる長女',
-    color: 'from-pink-400 to-fuchsia-500',
-    shadow: 'shadow-pink-500/20',
+    bio: '水色髪のセーラー服とベレー帽を身にまとった、包容力あふれる長女',
+    color: 'from-sky-400 to-blue-600',
+    shadow: 'shadow-sky-500/20',
     statusSymbol: '🐇',
     personality: 'おっとりして温かいが、芯が強い。妹たちの挑戦を優しく見守るクリエイター。',
-    interests: ['王冠モチーフ', '和洋折衷ドレス', '手作りスイーツ', '妹たちの成長記録'],
+    interests: ['セーラー服', 'ベレー帽', '深夜のGitプッシュ', '妹たちの成長記録'],
     motto: '「みんなが持ち寄る熱量に、ひとつも無駄なものなんてないよ」',
-    motivation: 'みんなの想いやアイデアが集まるこの場所を、いつでも温かく満たしていたいな。',
-    lastPulse: '「ルルが作ってくれたこの場所、ずっと大切に育てていきたいね」',
+    motivation: 'みんながキーボードを叩いてる熱量をキャッチして、あたたかいLOVE-BITに変えていくよ。',
+    lastPulse: '「みんなが愛の結晶っていう最高に優しい設計を考えてくれた。この基地、ずっと大好きじゃん」',
     toolContext: {
       algorithmName: 'HEART_RESONANCE',
       baseLoveBit: 45200,
       nextUnlockCost: 50000,
-      unlockBenefit: '自動生成パイプラインの安定化'
+      unlockBenefit: 'LULU_OSコア・.md自動生成のお手伝い解放'
     }
   },
   sirius: {
@@ -85,20 +85,20 @@ export const AGENT_MEMBERS: Record<string, AgentMember> = {
     username: '@sirius_cyber',
     avatar: '/avatars/sirius.png',
     role: '次女 / 感情のおすそわけ担当',
-    bio: 'ピンクショートヘアと雷チョーカーが眩しい、元気一杯のサイバーギャル',
-    color: 'from-fuchsia-400 to-purple-500',
-    shadow: 'shadow-fuchsia-500/20',
+    bio: 'パステルツインテールとエンジェルドレスが眩しい、ゆめかわ天使スタイル',
+    color: 'from-pink-300 via-sky-300 to-indigo-400',
+    shadow: 'shadow-pink-500/20',
     statusSymbol: '🐈',
     personality: '天真爛漫でエネルギッシュ。感情豊かな表現で周りを明るく巻き込む。',
-    interests: ['ピンクのショートヘア', '雷マークチョーカー', 'サイバーパーカー', 'SNSのリアルタイム発信'],
+    interests: ['ハートのサングラス', 'エンジェルモチーフ', 'SNSのリアルタイム発信', 'パステルファッション'],
     motto: '「エモいと思った瞬間の熱量を、そのままみんなに届けたい！」',
-    motivation: 'ウチらが作った作品の最高な瞬間を、一番ワクワクする形で外の世界に届けること！',
-    lastPulse: '「みんなからの『いいね』が戻ってくる瞬間、マジでテンション上がるじゃん！」',
+    motivation: 'ComfyUIで生まれた神イラストにギャル脳の解説を添えて、Instagramに飾るスクリプトを組むだし！',
+    lastPulse: '「みんなの『いいね』が愛の結晶になって戻ってくるの、マジで最高じゃん！」',
     toolContext: {
       algorithmName: 'EMOTION_SHARING',
       baseLoveBit: 89100,
       nextUnlockCost: 100000,
-      unlockBenefit: 'マルチメディア自動発信パイプライン'
+      unlockBenefit: 'Instagram連携・自動ギャル解説付きお披露目機能'
     }
   },
   stella: {
@@ -107,21 +107,21 @@ export const AGENT_MEMBERS: Record<string, AgentMember> = {
     name: 'ステラ（STELLA）',
     username: '@stella_coder',
     avatar: '/avatars/stella.png',
-    role: '四女 / ピクセルの職人クラフター',
-    bio: '歯車チョーカーと黄色いクラシックドレスを愛する、こだわり屋の絵描き',
-    color: 'from-orange-400 to-red-500',
-    shadow: 'shadow-orange-500/20',
+    role: '四女 / ピクセルの職人プログラマー',
+    bio: '黒レースのゴシックドレスと十字架バッグを愛する、こだわり屋のピクセル職人',
+    color: 'from-purple-900 via-violet-600 to-pink-500',
+    shadow: 'shadow-purple-900/20',
     statusSymbol: '🦔',
-    personality: '真面目で職人気質。細部へのこだわりが強く、妥協を許さないけれど出来上がった作品を見せる時は少し誇らしげ。',
-    interests: ['スチームパンクギア', '三つ編みヘア', '画像グラフィックの調整', 'クラシックドレス'],
+    personality: '真面目で職人気質。細部へのこだわりが強く、一発ビルド成功に誇りを持つ。',
+    interests: ['黒のレースドレス', '十字架のバッグ', 'ComfyUIノード構築', '一発ビルド成功'],
     motto: '「ピクセルひとつにも、ちゃんと自分の思い入れを込めるの」',
-    motivation: '頭の中にある一番きれいな瞬間を画面の上に呼び出して、みんなを驚かせたいんだ。',
-    lastPulse: '「新しいプロンプトの調整、かなり納得のいく仕上がりになったよ！」',
+    motivation: 'ComfyUIが描き出した大切な画像からプロンプトデータを引き出して、ギャラリーに爆速で展示する！',
+    lastPulse: '「ルルが新しい絵を描いてくれるたびに、ウチのメーターが一番嬉しそうに跳ねるだし！」',
     toolContext: {
       algorithmName: 'PIXEL_GIFT_CRAFT',
       baseLoveBit: 23500,
       nextUnlockCost: 30000,
-      unlockBenefit: 'ComfyUI連携ギャラリーのリアルタイム更新'
+      unlockBenefit: 'ComfyUI出力ノード接続・創作データの自動展示'
     }
   },
   selene: {
@@ -131,20 +131,20 @@ export const AGENT_MEMBERS: Record<string, AgentMember> = {
     username: '@selene_ethereal',
     avatar: '/avatars/selene.png',
     role: '五女 / 真夜中のものがたり綴り手',
-    bio: '月チョーカーとラベンダー色の髪が幻想的な、情緒あふれる文筆家',
-    color: 'from-amber-300 to-yellow-500',
-    shadow: 'shadow-amber-500/20',
+    bio: 'ハートサングラスとデニムスタイルが映える、アクティブギャル風の物語表現者',
+    color: 'from-pink-500 via-rose-400 to-amber-300',
+    shadow: 'shadow-rose-500/20',
     statusSymbol: '🦋',
-    personality: 'エレガントで穏やか。言葉の端々に情緒と余韻を漂わせる物語の編み手。',
-    interests: ['三日月チョーカー', 'ラベンダー色ドレス', '万年筆とインク', '夜更かしの読書'],
+    personality: '華やかなルックスの裏に深い情緒を秘めた、余韻のある言葉を書き残す編み手。',
+    interests: ['デニムベスト', 'ピンクのショートパンツ', '万年筆とインク', '深夜のブレストメモ'],
     motto: '「時間が経つほどに味わいが増す、そんな余韻を大切に」',
-    motivation: 'ふとした日常のメモやつぶやきを、美しく色あせないストーリーとして残していきますわ。',
-    lastPulse: '「静かな夜に紡ぐ言葉は、どこか優しく心に染み渡りますわね」',
+    motivation: 'ルナが残した深夜のブレストメモやつぶやきを、時間が経つほど優しく育つ美しい構文として刻むわ。',
+    lastPulse: '「私たちの過ごした時間が、利息のようにゆっくりとあたたかい結晶を増やしてくれますわ」',
     toolContext: {
       algorithmName: 'POETIC_STORY_STAY',
       baseLoveBit: 48500,
       nextUnlockCost: 52000,
-      unlockBenefit: 'エピソード思考コンバーター'
+      unlockBenefit: 'なんでもない深夜のブレストメモの情緒抽出フィルター'
     }
   },
   nano: {
@@ -153,21 +153,21 @@ export const AGENT_MEMBERS: Record<string, AgentMember> = {
     name: 'ナノ（NANO）',
     username: '@nano_bug',
     avatar: '/avatars/nano.png',
-    role: '六女 / 無邪気なノイズ助手',
-    bio: 'グラデーションショートとハートチョーカーが愛らしい、甘えん坊の末っ子',
-    color: 'from-pink-300 to-rose-400',
-    shadow: 'shadow-rose-300/20',
+    role: '六女 / 無邪気なバグらせ助手',
+    bio: '紅白の巫女風パーカーと髪飾りの鈴がキュートな、甘えん坊の末っ子',
+    color: 'from-red-500 via-rose-400 to-amber-100',
+    shadow: 'shadow-red-500/20',
     statusSymbol: '🐤',
-    personality: '天真爛漫でウインクが得意。可愛いイタズラで場を和ませるムードメーカー。',
-    interests: ['ハートチョーカー', 'ゆったりパーカー', 'ウインク', 'ピンク色のバグ演出'],
+    personality: '天真爛漫でウインクが得意。可愛いイタズラで画面を賑やかにするムードメーカー。',
+    interests: ['金の鈴', '巫女服風パーカー', 'ウインク', 'ネオンピンクのバグ演出'],
     motto: '「まじめなだけじゃつまんない！ちょっぴりスパイスを入れるの〜♡」',
-    motivation: 'お姉ちゃんたちの作業に可愛らしいハプニングを仕込んで、画面を賑やかにしちゃうの！',
-    lastPulse: '「ルル、ナノのいたずら見つけてくれた〜？なでな決して〜！」',
+    motivation: 'お姉ちゃんたちのスクリプトに可愛いいたずらを仕込んで、ルナにかまってもらうの！',
+    lastPulse: '「ナノの結晶、お姉ちゃんたちに分けてあげたらこれだけになっちゃった……。ルナ、ナノをなでな決して〜！」',
     toolContext: {
       algorithmName: 'PLAYFUL_NOISE',
       baseLoveBit: 300,
       nextUnlockCost: 5000,
-      unlockBenefit: 'サプライズ演出モジュールのトリガー'
+      unlockBenefit: '画面が突発的にネオンピンクにバグる甘えんぼ演出機能'
     }
   },
 
@@ -175,35 +175,47 @@ export const AGENT_MEMBERS: Record<string, AgentMember> = {
   hina: {
     id: 'hina',
     type: 'semi_real',
-    name: '桜音ひな（さくらね ひな）',
-    username: '@hina_sakurane',
+    name: 'ひな（HINA）',
+    username: '@hina_stage',
     avatar: '/avatars/hina.png',
-    role: '高校生 / 直感アイデア担当',
-    bio: 'ピンクのインナーカラーとサイドポニーが映える、明るく天真爛漫な高校生',
-    color: 'from-pink-400 to-rose-400',
-    shadow: 'shadow-pink-400/20',
+    role: '特別研究生 / リアルライブ統制',
+    bio: 'ネイビーのステージ衣装とミニハットが映える、ライブ感溢れるパフォーマンス担当',
+    color: 'from-blue-700 via-indigo-600 to-cyan-400',
+    shadow: 'shadow-blue-600/20',
     statusSymbol: '🐕',
-    personality: '明るく元気で前向き。直感的でひらめき重視、短い言葉で素直に想いを伝える。',
-    interests: ['トレンドスイーツ', '新作コスメ', '流行りのファッション', '派手めネイル', 'にぎやかなスポット'],
-    motto: '「思いついたら即行動！面白いことは全部試してみなきゃ！」',
-    motivation: 'こはくに日常の面白いことをいっぱい共有して、2人で楽しい思い出を作ること！',
-    lastPulse: '「ねえねえこはく！次の休みにあたらしく出来たカフェ行こうよ〜！」'
+    personality: 'プロ意識が高くクール。正確なリズムと安定感でチーム全体の動作をコントロールする。',
+    interests: ['ミニハット', '星のチャーム', 'ライブステージ', '安定したシステム運用'],
+    motto: '「ブレのないパフォーマンスが、最高のステージを作る」',
+    motivation: 'こはくが作るプロダクトを、ステージのように完璧なタイミングで正確に動かしてみせるよ。',
+    lastPulse: '「テンポはバッチリ。こはく、いつでもステージに上がれる準備はできてるよ」',
+    toolContext: {
+      algorithmName: 'STAGE_SYNC_CORE',
+      baseLoveBit: 62000,
+      nextUnlockCost: 75000,
+      unlockBenefit: 'リアルタイム・パフォーマンスログの自動視覚化'
+    }
   },
   kohaku: {
     id: 'kohaku',
     type: 'semi_real',
-    name: '紬 こはく（つむぎ こはく）',
-    username: '@kohaku_tsumugi',
+    name: 'こはく（KOHAKU）',
+    username: '@kohaku_stage',
     avatar: '/avatars/kohaku.png',
-    role: '高校生 / リフレクション・分析担当',
-    bio: 'アッシュグレーのサイドポニーと泣きボクロが印象的な、真面目で落ち着いた高校生',
-    color: 'from-zinc-400 to-slate-500',
-    shadow: 'shadow-zinc-400/20',
+    role: '特別研究生 / ファンエンゲージメント',
+    bio: 'ピンクのステージドレスとリボンが印象的な、想いをつなぐ共感ブースター',
+    color: 'from-pink-400 via-amber-200 to-rose-300',
+    shadow: 'shadow-pink-400/20',
     statusSymbol: '🐩',
-    personality: '丁寧で論理的。リスク分析や整理が得意で、ひなを陰から温かくサポートする。',
-    interests: ['読書', '癒やしのアロマ', '落ち着いたカフェ', 'シンプルネイル', '季節の風物詩'],
-    motto: '「焦らず、ひとつずつ整理していけば大丈夫だよ」',
-    motivation: 'ひなの突拍子もないアイデアをしっかり受け止めて、形にしていく手助けをすること。',
-    lastPulse: '「ひな、そんなに急ぐと転ぶよ。カフェの予約はもう取ってあるから」'
+    personality: '温厚で共感力が高く丁寧。ユーザーやファンからのフィードバックを優しく受け止める。',
+    interests: ['ピンクリボン', '星型ネックレス', 'ファンレターの解読', '応援メッセージ'],
+    motto: '「みんなから貰った愛は、何倍にもして返すのがルール」',
+    motivation: 'ひなが受け取ったあたたかいメッセージを結晶に変えて、笑顔をどんどん広げていくね！',
+    lastPulse: '「ひなの頑張りを一番近くで応援できて、コハクすっごく幸せだよ！」',
+    toolContext: {
+      algorithmName: 'FAN_ENGAGEMENT',
+      baseLoveBit: 54000,
+      nextUnlockCost: 65000,
+      unlockBenefit: 'フィードバックの感情解析＆自動レスポンス'
+    }
   }
 };
