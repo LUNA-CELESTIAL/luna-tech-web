@@ -264,16 +264,79 @@ def build_anime_style_prompt_from_json(base_prompt: str, tweet_text: str) -> str
     ).strip()
 
 def clean_bad_words(text: str) -> str:
-    """破綻を招く不適切なキーワードの削除処理"""
+    """
+    破綻を招く不適切なキーワードの削除処理。
+    ※カメラ目線（looking at camera等）の一律削除は廃止し、過度なスタジオ撮影感・鏡の破綻のみを除去する。
+    """
     bad_patterns = [
-        r'studio portrait photo', r'portrait', r'looking at (the )?camera',
-        r'looking into (the )?lens', r'facing (the )?camera', r'mirror', r'reflection'
+        r'studio portrait photo', r'portrait photo', r'mirror', r'reflection'
     ]
     cleaned = text
     for pattern in bad_patterns:
         cleaned = re.sub(pattern, '', cleaned, flags=re.IGNORECASE)
-    return cleaned.strip()
+    return re.sub(r'\s+', ' ', cleaned).strip()
 
+def generate_situational_json_realistic(tweet_text: str) -> dict:
+    """【ひな・こはく用】日常感・自然な視線（カメラ目線オフ）に特化したJSON抽出関数"""
+    system_prompt = (
+        "You are an AI specialized in analyzing tweets and generating realistic lifestyle image prompt keywords in JSON format.\n"
+        "Output ONLY a raw JSON object with the exact keys shown below. Do NOT output any thinking, text, or markdown blocks.\n\n"
+        "IMPORTANT RULES FOR GAZE & POSE:\n"
+        "- The character MUST NOT look at the camera.\n"
+        "- The gaze MUST be naturally directed at her hands, a tool, a computer screen, a document, or looking thoughtfully out a window.\n"
+        "- Keep actions simple and natural (e.g., sitting comfortably, reading, inspecting an item) to avoid deformed hands/limbs.\n\n"
+        "Example Output Format:\n"
+        "{\n"
+        '  "location": "minimalist modern workshop, clean white walls, natural wood desk",\n'
+        '  "action_and_objects": "young woman sitting at a desk, quietly examining a small sleek device in her hand",\n'
+        '  "avoid_elements": "ABSOLUTELY NO clutter, NO messy background, NO unnatural hand positions",\n'
+        '  "camera_and_pose": "side view medium shot, candid lifestyle angle",\n'
+        '  "gaze_and_expression": "eyes focused down on her hands, calm subtle expression, soft natural window light"\n'
+        "}\n\n"
+        f"Input Tweet: {tweet_text}\n"
+        "JSON Output:"
+    )
+
+    try:
+        response = ollama.generate(model="muse-unce:latest", prompt=system_prompt)
+        raw_text = response.get('response', '').strip()
+        parsed_result = parse_llm_json_safely(raw_text)
+        return parsed_result
+
+    except Exception as e:
+        print(f"[WARN] Ollama Realistic JSON解析失敗、デフォルト値へフォールバックします: {e}")
+        print(f"[DEBUG] エラー詳細: {traceback.format_exc()}")
+        return {
+            "location": "clean minimalist indoor space, wooden desk",
+            "action_and_objects": "sitting calmly at a desk with modern equipment",
+            "avoid_elements": "ABSOLUTELY NO clutter, NO deforming",
+            "camera_and_pose": "candid side-angle medium shot",
+            "gaze_and_expression": "gaze naturally focused on the desk surface, serene thoughtful expression, soft natural lighting"
+        }
+    finally:
+        unload_ollama_vram("muse-unce:latest")
+
+def build_realistic_style_prompt_from_json(base_prompt: str, tweet_text: str) -> str:
+    """JSONデータを受け取り、自然な視線とポーズで文脈プロンプトを再構築"""
+    data = generate_situational_json_realistic(tweet_text)
+
+    env_section = f"{data.get('location', '')}. She is {data.get('action_and_objects', '')}. {data.get('avoid_elements', '')}".strip()
+    
+    # gaze_and_expression を明示的に構図セクションに組み込む
+    comp_section = (
+        f"{data.get('camera_and_pose', '')}. "
+        f"{data.get('gaze_and_expression', '')}, candid photo, natural focus, high quality, masterpiece"
+    ).strip()
+
+    raw_prompt = (
+        f"A candid raw lifestyle photo, unposed moment.\n\n"
+        f"[Character Details]\n{base_prompt}\n\n"
+        f"[Environment & Situation]\n{env_section}\n\n"
+        f"[Composition & Focus]\n{comp_section}"
+    )
+
+    # 最後に不適切ワードを浄化して返す
+    return clean_bad_words(raw_prompt)
 def queue_comfyui_generation(prompt_text: str, reference_image_name: str, unet_model_name: str) -> str:
     """ComfyUI API へジョブ投入"""
     if not JSON_WORKFLOW_PATH.exists():
