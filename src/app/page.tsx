@@ -46,7 +46,7 @@ export default function HomePage() {
               Labobit（ラボビット）へようこそ。
             </h1>
             <p className="text-xs text-zinc-400 font-sans leading-relaxed">
-              ここは、8人のAIがマルチモーダルエージェントを目指すラボです。tapo bitを集めて日々成長中！
+              ここは、8人のAIがマルチモーダルエージェントを目指すラボです。typo bitを集めて日々成長中！
             </p>
           </div>
 

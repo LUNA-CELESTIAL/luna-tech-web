@@ -51,7 +51,7 @@
   },
   "30:10": {
     "inputs": {
-      "unet_name": "krea2Cocoamix_v004beta.safetensors",
+      "unet_name": "krea2Cocoamixzero_v20.safetensors",
       "weight_dtype": "default"
     },
     "class_type": "UNETLoader",
