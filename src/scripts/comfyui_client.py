@@ -165,89 +165,7 @@ def parse_llm_json_safely(raw_text: str) -> dict:
 
     return json.loads(json_str)
 
-def generate_situational_json_realistic(tweet_text: str) -> dict:
-    """【ひな・こはく用】LLMにカンマ区切りキーワードのみをJSON出力させる関数"""
-    system_prompt = (
-        "You are an AI specialized in analyzing tweets and generating image prompt keywords in JSON format.\n"
-        "Output ONLY a raw JSON object with the exact keys shown below. Do NOT output any thinking, text, or markdown blocks.\n\n"
-        "Example Output Format:\n"
-        "{\n"
-        '  "location": "minimalist Japanese workshop interior, clean white walls, natural wood desk",\n'
-        '  "action_and_objects": "young woman sitting at desk, gently placing excess tools into a drawer, holding one sleek tool",\n'
-        '  "avoid_elements": "ABSOLUTELY NO clutter, NO brand logos, NO messy background",\n'
-        '  "camera_and_pose": "eye-level medium shot, three-quarter body pose seated at desk",\n'
-        '  "expression_and_mood": "thoughtful calm facial expression, soft reflective smile, gentle natural lighting"\n'
-        "}\n\n"
-        f"Input Tweet: {tweet_text}\n"
-        "JSON Output:"
-    )
 
-    try:
-        response = ollama.generate(model="muse-unce:latest", prompt=system_prompt)
-        raw_text = response.get('response', '').strip()
-        parsed_result = parse_llm_json_safely(raw_text)
-        return parsed_result
-
-    except Exception as e:
-        print(f"[WARN] Ollama Realistic JSON解析失敗、デフォルト値へフォールバックします: {e}")
-        return {
-            "location": "clean minimalist indoor space, wooden desk",
-            "action_and_objects": "sitting at a wooden desk, handling essential tools",
-            "avoid_elements": "ABSOLUTELY NO clutter, NO dangerous tools",
-            "camera_and_pose": "medium shot, natural seated pose",
-            "expression_and_mood": "calm thoughtful expression, soft natural lighting"
-        }
-    finally:
-        unload_ollama_vram("muse-unce:latest")
-
-def build_realistic_style_prompt_from_json(base_prompt: str, tweet_text: str) -> str:
-    """JSONデータを受け取り、文脈の通った自然な英文プロンプトへガッチャンコして再構築"""
-    data = generate_situational_json_realistic(tweet_text)
-
-    env_section = f"{data.get('location', '')}. She is {data.get('action_and_objects', '')}. {data.get('avoid_elements', '')}".strip()
-    comp_section = f"{data.get('camera_and_pose', '')}. {data.get('expression_and_mood', '')}, high quality, masterpiece".strip()
-
-    return (
-        f"A candid raw photo, natural lifestyle photography.\n\n"
-        f"[Character Details]\n{base_prompt}\n\n"
-        f"[Environment & Situation]\n{env_section}\n\n"
-        f"[Composition & Lighting]\n{comp_section}"
-    ).strip()
-
-def generate_situational_json_anime(tweet_text: str) -> dict:
-    """【ルナファミリー用】2Dアニメ調キーワードをJSON形式で抽出する関数"""
-    system_prompt = (
-        "You are an AI specialized in analyzing tweets and generating 2D anime style image prompt keywords in JSON format.\n"
-        "Output ONLY a raw JSON object with the exact keys shown below. Do NOT output any thinking, text, or markdown blocks.\n\n"
-        "Example Output Format:\n"
-        "{\n"
-        '  "location": "vibrant anime street cafe, glass windows, neon signage in Japanese, wet asphalt reflections",\n'
-        '  "action_and_objects": "energetic young anime girl sitting at table, holding a glowing futuristic gadget",\n'
-        '  "avoid_elements": "ABSOLUTELY NO realistic photorealistic human faces, NO photographic textures, NO camera noise",\n'
-        '  "camera_and_gaze": "low angle medium close-up, gazing at glowing device, slight Dutch tilt",\n'
-        '  "style_and_lighting": "cel shaded 2D anime key visual style, vibrant neon rim lighting, cyan glow"\n'
-        "}\n\n"
-        f"Input Tweet: {tweet_text}\n"
-        "JSON Output:"
-    )
-
-    try:
-        response = ollama.generate(model="muse-unce:latest", prompt=system_prompt)
-        raw_text = response.get('response', '').strip()
-        parsed_result = parse_llm_json_safely(raw_text)
-        return parsed_result
-
-    except Exception as e:
-        print(f"[WARN] Ollama Anime JSON解析失敗、デフォルト値へフォールバックします: {e}")
-        return {
-            "location": "vibrant anime background style, clean stylized background art",
-            "action_and_objects": "sitting comfortably at a modern cafe table",
-            "avoid_elements": "ABSOLUTELY NO realistic photorealistic elements, NO real human faces, NO camera noise",
-            "camera_and_gaze": "medium shot, crisp anime art style",
-            "style_and_lighting": "soft studio lighting, vibrant colors, highly detailed"
-        }
-    finally:
-        unload_ollama_vram("muse-unce:latest")
 
 def build_anime_style_prompt_from_json(base_prompt: str, tweet_text: str) -> str:
     """JSONデータを受け取り、2Dアニメ調の文脈プロンプトを再構築"""
@@ -277,66 +195,42 @@ def clean_bad_words(text: str) -> str:
     return re.sub(r'\s+', ' ', cleaned).strip()
 
 def generate_situational_json_realistic(tweet_text: str) -> dict:
-    """【ひな・こはく用】日常感・自然な視線（カメラ目線オフ）に特化したJSON抽出関数"""
+    """【ひな・こはく用】作業・対象物への視線集中に特化したJSON抽出関数"""
     system_prompt = (
         "You are an AI specialized in analyzing tweets and generating realistic lifestyle image prompt keywords in JSON format.\n"
         "Output ONLY a raw JSON object with the exact keys shown below. Do NOT output any thinking, text, or markdown blocks.\n\n"
-        "IMPORTANT RULES FOR GAZE & POSE:\n"
-        "- The character MUST NOT look at the camera.\n"
-        "- The gaze MUST be naturally directed at her hands, a tool, a computer screen, a document, or looking thoughtfully out a window.\n"
-        "- Keep actions simple and natural (e.g., sitting comfortably, reading, inspecting an item) to avoid deformed hands/limbs.\n\n"
+        "CRITICAL RULES FOR GAZE:\n"
+        "- The character's eyes MUST be explicitly focused on her immediate action or target (e.g., looking down at her hands, looking closely at the computer monitor, inspecting a document).\n"
+        "- NEVER use words like 'thoughtful', 'dreamy', 'looking out window', or 'contemplative' as they cause the gaze to wander.\n"
+        "- Describe the exact physical target of her gaze.\n\n"
         "Example Output Format:\n"
         "{\n"
-        '  "location": "minimalist modern workshop, clean white walls, natural wood desk",\n'
-        '  "action_and_objects": "young woman sitting at a desk, quietly examining a small sleek device in her hand",\n'
+        '  "location": "minimalist modern home office, clean white desk, soft daylight",\n'
+        '  "action_and_objects": "young woman sitting at a desk, operating a keyboard and looking closely at the computer screen",\n'
         '  "avoid_elements": "ABSOLUTELY NO clutter, NO messy background, NO unnatural hand positions",\n'
-        '  "camera_and_pose": "side view medium shot, candid lifestyle angle",\n'
-        '  "gaze_and_expression": "eyes focused down on her hands, calm subtle expression, soft natural window light"\n'
+        '  "camera_and_pose": "over-the-shoulder medium shot, candid lifestyle angle",\n'
+        '  "gaze_and_expression": "eyes focused directly down on the screen and hands, calm serious gaze, natural focus"\n'
         "}\n\n"
         f"Input Tweet: {tweet_text}\n"
         "JSON Output:"
     )
-
-    try:
-        response = ollama.generate(model="muse-unce:latest", prompt=system_prompt)
-        raw_text = response.get('response', '').strip()
-        parsed_result = parse_llm_json_safely(raw_text)
-        return parsed_result
-
-    except Exception as e:
-        print(f"[WARN] Ollama Realistic JSON解析失敗、デフォルト値へフォールバックします: {e}")
-        print(f"[DEBUG] エラー詳細: {traceback.format_exc()}")
-        return {
-            "location": "clean minimalist indoor space, wooden desk",
-            "action_and_objects": "sitting calmly at a desk with modern equipment",
-            "avoid_elements": "ABSOLUTELY NO clutter, NO deforming",
-            "camera_and_pose": "candid side-angle medium shot",
-            "gaze_and_expression": "gaze naturally focused on the desk surface, serene thoughtful expression, soft natural lighting"
-        }
-    finally:
-        unload_ollama_vram("muse-unce:latest")
-
 def build_realistic_style_prompt_from_json(base_prompt: str, tweet_text: str) -> str:
-    """JSONデータを受け取り、自然な視線とポーズで文脈プロンプトを再構築"""
+    """JSONデータを受け取り、視線・構図の優先度を高めてプロンプトを再構築"""
     data = generate_situational_json_realistic(tweet_text)
 
     env_section = f"{data.get('location', '')}. She is {data.get('action_and_objects', '')}. {data.get('avoid_elements', '')}".strip()
-    
-    # gaze_and_expression を明示的に構図セクションに組み込む
-    comp_section = (
-        f"{data.get('camera_and_pose', '')}. "
-        f"{data.get('gaze_and_expression', '')}, candid photo, natural focus, high quality, masterpiece"
-    ).strip()
+    gaze_section = f"{data.get('camera_and_pose', '')}. {data.get('gaze_and_expression', '')}, natural focus, candid photo, high quality, masterpiece".strip()
 
+    # 視線と状況を前に配置して、AIへの指示強度を強める
     raw_prompt = (
         f"A candid raw lifestyle photo, unposed moment.\n\n"
-        f"[Character Details]\n{base_prompt}\n\n"
+        f"[Focus & Action]\n{gaze_section}\n\n"
         f"[Environment & Situation]\n{env_section}\n\n"
-        f"[Composition & Focus]\n{comp_section}"
+        f"[Character Details]\n{base_prompt}"
     )
 
-    # 最後に不適切ワードを浄化して返す
     return clean_bad_words(raw_prompt)
+    
 def queue_comfyui_generation(prompt_text: str, reference_image_name: str, unet_model_name: str) -> str:
     """ComfyUI API へジョブ投入"""
     if not JSON_WORKFLOW_PATH.exists():
