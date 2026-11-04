@@ -165,7 +165,41 @@ def parse_llm_json_safely(raw_text: str) -> dict:
 
     return json.loads(json_str)
 
+def generate_situational_json_anime(tweet_text: str) -> dict:
+    """【ルナファミリー用】2Dアニメ調キーワードをJSON形式で抽出する関数"""
+    system_prompt = (
+        "You are an AI specialized in analyzing tweets and generating 2D anime style image prompt keywords in JSON format.\n"
+        "Output ONLY a raw JSON object with the exact keys shown below. Do NOT output any thinking, text, or markdown blocks.\n\n"
+        "Example Output Format:\n"
+        "{\n"
+        '  "location": "vibrant anime street cafe, glass windows, neon signage in Japanese, wet asphalt reflections",\n'
+        '  "action_and_objects": "energetic young anime girl sitting at table, holding a glowing futuristic gadget",\n'
+        '  "avoid_elements": "ABSOLUTELY NO realistic photorealistic human faces, NO photographic textures, NO camera noise",\n'
+        '  "camera_and_gaze": "low angle medium close-up, gazing at glowing device, slight Dutch tilt",\n'
+        '  "style_and_lighting": "cel shaded 2D anime key visual style, vibrant neon rim lighting, cyan glow"\n'
+        "}\n\n"
+        f"Input Tweet: {tweet_text}\n"
+        "JSON Output:"
+    )
 
+    try:
+        response = ollama.generate(model="muse-unce:latest", prompt=system_prompt)
+        raw_text = response.get('response', '').strip()
+        parsed_result = parse_llm_json_safely(raw_text)
+        return parsed_result
+
+    except Exception as e:
+        print(f"[WARN] Ollama Anime JSON解析失敗、デフォルト値へフォールバックします: {e}")
+        print(f"[DEBUG] 詳細ログ:\n{traceback.format_exc()}")
+        return {
+            "location": "vibrant anime background style, clean stylized background art",
+            "action_and_objects": "sitting comfortably at a modern cafe table",
+            "avoid_elements": "ABSOLUTELY NO realistic photorealistic elements, NO real human faces, NO camera noise",
+            "camera_and_gaze": "medium shot, crisp anime art style",
+            "style_and_lighting": "soft studio lighting, vibrant colors, highly detailed"
+        }
+    finally:
+        unload_ollama_vram("muse-unce:latest")
 
 def build_anime_style_prompt_from_json(base_prompt: str, tweet_text: str) -> str:
     """JSONデータを受け取り、2Dアニメ調の文脈プロンプトを再構築"""
@@ -176,9 +210,9 @@ def build_anime_style_prompt_from_json(base_prompt: str, tweet_text: str) -> str
 
     return (
         f"Masterpiece 2D anime illustration, digital artwork style.\n\n"
-        f"[Character Details]\n{base_prompt}\n\n"
+        f"[Composition & Gaze]\n{comp_section}\n\n"
         f"[Environment & Situation]\n{env_section}\n\n"
-        f"[Composition & Gaze]\n{comp_section}"
+        f"[Character Details]\n{base_prompt}"
     ).strip()
 
 def clean_bad_words(text: str) -> str:
@@ -214,6 +248,26 @@ def generate_situational_json_realistic(tweet_text: str) -> dict:
         f"Input Tweet: {tweet_text}\n"
         "JSON Output:"
     )
+
+    try:
+        response = ollama.generate(model="muse-unce:latest", prompt=system_prompt)
+        raw_text = response.get('response', '').strip()
+        parsed_result = parse_llm_json_safely(raw_text)
+        return parsed_result
+
+    except Exception as e:
+        print(f"[WARN] Ollama Realistic JSON解析失敗、デフォルト値へフォールバックします: {e}")
+        print(f"[DEBUG] 詳細ログ:\n{traceback.format_exc()}")
+        return {
+            "location": "clean minimalist indoor space, wooden desk",
+            "action_and_objects": "sitting calmly at a desk with modern equipment",
+            "avoid_elements": "ABSOLUTELY NO clutter, NO deforming",
+            "camera_and_pose": "candid side-angle medium shot",
+            "gaze_and_expression": "gaze naturally focused on the desk surface, serene expression, soft natural lighting"
+        }
+    finally:
+        unload_ollama_vram("muse-unce:latest")
+
 def build_realistic_style_prompt_from_json(base_prompt: str, tweet_text: str) -> str:
     """JSONデータを受け取り、視線・構図の優先度を高めてプロンプトを再構築"""
     data = generate_situational_json_realistic(tweet_text)
@@ -230,7 +284,7 @@ def build_realistic_style_prompt_from_json(base_prompt: str, tweet_text: str) ->
     )
 
     return clean_bad_words(raw_prompt)
-    
+
 def queue_comfyui_generation(prompt_text: str, reference_image_name: str, unet_model_name: str) -> str:
     """ComfyUI API へジョブ投入"""
     if not JSON_WORKFLOW_PATH.exists():
