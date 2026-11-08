@@ -1,65 +1,82 @@
 {
   "29": {
     "inputs": {
-      "filename_prefix": "Krea2_turbo_style_reference",
+      "filename_prefix": "krea2_identity_edit",
       "images": [
-        "30:62",
+        "54",
         0
       ]
     },
     "class_type": "SaveImage",
     "_meta": {
-      "title": "Save Image"
+      "title": "Save Image",
+      "cnr_id": "comfy-core",
+      "ver": "0.26.0"
     }
   },
-  "69": {
+  "53": {
     "inputs": {
-      "image": "krea2_reference_image.png"
-    },
-    "class_type": "LoadImage",
-    "_meta": {
-      "title": "Load Image"
-    }
-  },
-  "71": {
-    "inputs": {
-      "aspect_ratio": "9:16 (Portrait Widescreen)",
-      "megapixels": 1,
-      "multiple": 8
-    },
-    "class_type": "ResolutionSelector",
-    "_meta": {
-      "title": "Resolution Selector"
-    }
-  },
-  "30:5": {
-    "inputs": {
-      "width": [
-        "71",
+      "seed": 246905953401182,
+      "steps": 10,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1,
+      "model": [
+        "79",
         0
       ],
-      "height": [
-        "71",
-        1
+      "positive": [
+        "84",
+        0
       ],
-      "batch_size": 1
+      "negative": [
+        "85",
+        0
+      ],
+      "latent_image": [
+        "82",
+        0
+      ]
     },
-    "class_type": "EmptyLatentImage",
+    "class_type": "KSampler",
     "_meta": {
-      "title": "Empty Latent Image"
+      "title": "KSampler",
+      "cnr_id": "comfy-core",
+      "ver": "0.26.0"
     }
   },
-  "30:10": {
+  "54": {
     "inputs": {
-      "unet_name": "krea2Cocoamixzero_v20.safetensors",
+      "samples": [
+        "53",
+        0
+      ],
+      "vae": [
+        "57",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode",
+      "cnr_id": "comfy-core",
+      "ver": "0.26.0"
+    }
+  },
+  "55": {
+    "inputs": {
+      "unet_name": "moodyCutieMixFreeKrea2_v60_int8.safetensors",
       "weight_dtype": "default"
     },
     "class_type": "UNETLoader",
     "_meta": {
-      "title": "Load Diffusion Model"
+      "title": "Load Diffusion Model",
+      "cnr_id": "comfy-core",
+      "ver": "0.26.0"
     }
   },
-  "30:11": {
+  "56": {
     "inputs": {
       "clip_name": "qwen3vl_4b_fp8_scaled.safetensors",
       "type": "krea2",
@@ -67,320 +84,174 @@
     },
     "class_type": "CLIPLoader",
     "_meta": {
-      "title": "Load CLIP"
+      "title": "Load CLIP",
+      "cnr_id": "comfy-core",
+      "ver": "0.26.0"
     }
   },
-  "30:12": {
+  "57": {
     "inputs": {
       "vae_name": "qwen_image_vae.safetensors"
     },
     "class_type": "VAELoader",
     "_meta": {
-      "title": "Load VAE"
+      "title": "Load VAE",
+      "cnr_id": "comfy-core",
+      "ver": "0.26.0"
     }
   },
-  "30:13": {
-    "inputs": {
-      "conditioning": [
-        "30:53",
-        0
-      ]
-    },
-    "class_type": "ConditioningZeroOut",
-    "_meta": {
-      "title": "Conditioning Zero Out"
-    }
-  },
-  "30:15": {
+  "71": {
     "inputs": {
       "lora_name": "krea2_identity_edit_v1_2.safetensors",
-      "strength_model": 0.8,
+      "strength_model": 1,
       "model": [
-        "30:10",
+        "55",
         0
       ]
     },
     "class_type": "LoraLoaderModelOnly",
     "_meta": {
-      "title": "Load LoRA"
+      "title": "Load LoRA",
+      "cnr_id": "comfy-core",
+      "ver": "0.26.0"
     }
   },
-  "30:16": {
+  "72": {
     "inputs": {
-      "prompt": [
-        "30:17",
-        0
-      ],
-      "max_length": 512,
-      "sampling_mode": "on",
-      "sampling_mode.temperature": 0.7,
-      "sampling_mode.top_k": 64,
-      "sampling_mode.top_p": 0.95,
-      "sampling_mode.min_p": 0.05,
-      "sampling_mode.repetition_penalty": 1.05,
-      "sampling_mode.seed": 0,
-      "sampling_mode.presence_penalty": 0,
-      "thinking": false,
-      "use_default_template": true,
-      "mtp": "auto",
-      "clip": [
-        "30:11",
-        0
-      ]
+      "image": "hina.png"
     },
-    "class_type": "TextGenerate",
+    "class_type": "LoadImage",
     "_meta": {
-      "title": "Generate Text"
+      "title": "Load Image",
+      "cnr_id": "comfy-core",
+      "ver": "0.26.0"
     }
   },
-  "30:17": {
+  "73": {
     "inputs": {
-      "string_a": [
-        "30:18",
-        0
-      ],
-      "string_b": [
-        "30:19",
-        0
-      ],
-      "delimiter": ""
-    },
-    "class_type": "StringConcatenate",
-    "_meta": {
-      "title": "Concatenate Text"
-    }
-  },
-  "30:18": {
-    "inputs": {
-      "value": "You are an expert prompt engineer for text-to-image models. Your task is to expand the user's prompt into a highly effective image-generation prompt.\n\nThink step by step about the request before writing the answer:\n- What is the subject and mood?\n- What visual styles, mediums, and lighting options would fit? Consider two or three alternatives and pick the one that best serves the caption.\n- What composition, framing, and grounded details will help the text-to-image model?\n\nThen output a single expanded prompt paragraph.\n\nFollow these rules strictly:\n1. **Faithfulness First:** Preserve all original subjects, actions, colors, and spatial relationships. Do not add new objects, props, characters, or animals unless the user clearly implies them.\n2. **Practical T2I Structure:** Write a prompt that a text-to-image model can parse cleanly. Group subjects with their own attributes and actions. Use grounded phrasing for poses, interactions, and spatial layout.\n3. **Style Planning Stays Internal:** Use your internal reasoning to choose style, medium, framing, and lighting. Do not emit planning tags or wrappers in the visible answer body.\n4. **Text Rendering:** If the user requests visible text, quotes, labels, or typography, specify the exact text clearly and wrap requested words in quotes.\n5. **Avoid Over-Specification:** Do not invent highly specific clothing, colors, materials, or scene details unless the input supports them.\n6. **Structure:** Write one cohesive paragraph after the thinking block. No bullets, JSON, or markdown.\n7. **Respect Existing Detail:** If the user's prompt is already detailed, lightly polish and finalize rather than heavily expanding — preserve their phrasing and direction.\n8. **Respect the Human Form:** Treat depictions of people with dignity. Assume clothing covers genitals and intimate anatomy.\n9. **Preserve User Medium:** When the user explicitly requests a medium (e.g. \"photo of\", \"photograph of\", \"illustration of\", \"painting of\", \"sketch of\", \"3D render of\"), honor it. Do not pivot to a different medium to avoid difficulty — match the user's stated intent.\n\nUser's Input:\n\n"
-    },
-    "class_type": "PrimitiveStringMultiline",
-    "_meta": {
-      "title": "Text String (System Prompt)"
-    }
-  },
-  "30:19": {
-    "inputs": {
-      "value": "a white yeti with horns reading a book that is titled \"Ostris + Krea2 Style Reference\""
-    },
-    "class_type": "PrimitiveStringMultiline",
-    "_meta": {
-      "title": "Text String (User Prompt)"
-    }
-  },
-  "30:20": {
-    "inputs": {
-      "source": [
-        "30:21",
-        0
-      ]
-    },
-    "class_type": "PreviewAny",
-    "_meta": {
-      "title": "Preview as Text"
-    }
-  },
-  "30:21": {
-    "inputs": {
-      "switch": [
-        "30:24",
-        0
-      ],
-      "on_false": [
-        "30:19",
-        0
-      ],
-      "on_true": [
-        "30:16",
-        0
-      ]
-    },
-    "class_type": "ComfySwitchNode",
-    "_meta": {
-      "title": "If/Else Switch"
-    }
-  },
-  "30:24": {
-    "inputs": {
-      "value": false
-    },
-    "class_type": "PrimitiveBoolean",
-    "_meta": {
-      "title": "Boolean (Refine Prompt?)"
-    }
-  },
-  "30:52": {
-    "inputs": {
-      "prompt": [
-        "30:20",
-        0
-      ],
-      "clip": [
-        "30:11",
+      "pixels": [
+        "72",
         0
       ],
       "vae": [
-        "30:12",
-        0
-      ],
-      "image1": [
-        "69",
+        "57",
         0
       ]
     },
-    "class_type": "TextEncodeQwenImageEditPlus",
+    "class_type": "VAEEncode",
     "_meta": {
-      "title": "Text Encode Qwen Image Edit Plus"
+      "title": "VAE Encode",
+      "cnr_id": "comfy-core",
+      "ver": "0.26.0"
     }
   },
-  "30:53": {
+  "79": {
     "inputs": {
-      "reference_latents_method": "index_timestep_zero",
-      "conditioning": [
-        "30:52",
-        0
-      ]
-    },
-    "class_type": "FluxKontextMultiReferenceLatentMethod",
-    "_meta": {
-      "title": "Edit Model Reference Method"
-    }
-  },
-  "30:57": {
-    "inputs": {
-      "cfg": 1,
+      "ref_boost": 0.8,
+      "ref_boost_a": 1,
+      "fit_mode": "fit",
+      "ref_position": "aligned (trained)",
+      "ref_position_a": "aligned (trained)",
       "model": [
-        "30:64",
+        "71",
         0
       ],
-      "positive": [
-        "30:53",
+      "source_latent": [
+        "73",
         0
       ],
-      "negative": [
-        "30:13",
+      "vae": [
+        "57",
+        0
+      ],
+      "source_image": [
+        "72",
+        0
+      ],
+      "target_latent": [
+        "82",
         0
       ]
     },
-    "class_type": "CFGGuider",
+    "class_type": "Krea2EditModelPatch",
     "_meta": {
-      "title": "CFG Guider"
+      "title": "Krea2 Edit (source patch)",
+      "cnr_id": "comfyui-krea2edit",
+      "ver": "86f886dac23013d88996e3a2e99093ba44d322fb"
     }
   },
-  "30:58": {
-    "inputs": {
-      "noise": [
-        "30:63",
-        0
-      ],
-      "guider": [
-        "30:57",
-        0
-      ],
-      "sampler": [
-        "30:59",
-        0
-      ],
-      "sigmas": [
-        "30:60",
-        0
-      ],
-      "latent_image": [
-        "30:61",
-        0
-      ]
-    },
-    "class_type": "SamplerCustomAdvanced",
-    "_meta": {
-      "title": "SamplerCustomAdvanced"
-    }
-  },
-  "30:59": {
-    "inputs": {
-      "sampler_name": "euler"
-    },
-    "class_type": "KSamplerSelect",
-    "_meta": {
-      "title": "KSamplerSelect"
-    }
-  },
-  "30:60": {
-    "inputs": {
-      "scheduler": "simple",
-      "steps": 8,
-      "denoise": 1,
-      "model": [
-        "30:64",
-        0
-      ]
-    },
-    "class_type": "BasicScheduler",
-    "_meta": {
-      "title": "BasicScheduler"
-    }
-  },
-  "30:61": {
+  "82": {
     "inputs": {
       "width": [
-        "71",
+        "83",
         0
       ],
       "height": [
-        "71",
+        "83",
         1
       ],
       "batch_size": 1
     },
-    "class_type": "EmptyLatentImage",
+    "class_type": "EmptySD3LatentImage",
     "_meta": {
-      "title": "Empty Latent Image"
+      "title": "EmptySD3LatentImage",
+      "cnr_id": "comfy-core",
+      "ver": "0.26.0"
     }
   },
-  "30:62": {
+  "83": {
     "inputs": {
-      "samples": [
-        "30:58",
+      "aspect_ratio": "3:4 (Portrait Standard)",
+      "megapixels": 1,
+      "multiple": 8
+    },
+    "class_type": "ResolutionSelector",
+    "_meta": {
+      "title": "Resolution Selector",
+      "cnr_id": "comfy-core",
+      "ver": "0.26.0"
+    }
+  },
+  "84": {
+    "inputs": {
+      "prompt": "change her\nA candid raw lifestyle photo, unposed moment.\n\n[Focus & Action]\nover-the-shoulder medium close-up shot, shallow depth of field, candid lifestyle angle, slightly low perspective. eyes focused directly down on the smartphone screen in her hands, close inspection gaze at the device, calm concentrated expression, natural focused look on phone, natural focus, candid photo, high quality, masterpiece. holding a Motorola smartphone in both hands and inspecting the screen closely.\n\n[Environment & Situation]\nminimalist modern home desk setup, clean white and light wood surfaces, soft natural daylight from window, minimal Scandinavian interior. sitting neatly at a clean desk, laptop open beside her showing GrapheneOS related webpage, subtle privacy and tech setup. ABSOLUTELY NO clutter, NO messy background, NO unnatural hand positions, NO extra people, NO distracting items.\n\n[Character Identity]\nA 16-year-old Japanese high school girl with slender, sharp facial features, a defined jawline, and a calm, slightly cool expression. Long dark brown hair in loose waves with layered bangs. Natural, clear eyes with a focused gaze and bright catchlights, a small refined nose, and natural lips. Her fair skin is completely smooth, clear, and flawless, featuring a subtle small facial mole on her cheek for realistic detail, with no freckles, no blemishes, and no heavy makeup.",
+      "grounding_px": 768,
+      "system_prompt": "",
+      "clip": [
+        "56",
         0
       ],
-      "vae": [
-        "30:12",
+      "image": [
+        "72",
         0
       ]
     },
-    "class_type": "VAEDecode",
+    "class_type": "Krea2EditGroundedEncode",
     "_meta": {
-      "title": "VAE Decode"
+      "title": "Krea2 Edit (grounded encode)",
+      "cnr_id": "comfyui-krea2edit",
+      "ver": "86f886dac23013d88996e3a2e99093ba44d322fb"
     }
   },
-  "30:63": {
+  "85": {
     "inputs": {
-      "noise_seed": 251161685108094
-    },
-    "class_type": "RandomNoise",
-    "_meta": {
-      "title": "RandomNoise"
-    }
-  },
-  "30:64": {
-    "inputs": {
-      "max_shift": 1.15,
-      "base_shift": 0.5,
-      "width": [
-        "71",
+      "prompt": "",
+      "grounding_px": 768,
+      "system_prompt": "",
+      "clip": [
+        "56",
         0
       ],
-      "height": [
-        "71",
-        1
-      ],
-      "model": [
-        "30:15",
+      "image": [
+        "72",
         0
       ]
     },
-    "class_type": "ModelSamplingFlux",
+    "class_type": "Krea2EditGroundedEncode",
     "_meta": {
-      "title": "ModelSamplingFlux"
+      "title": "negative (leave empty)",
+      "cnr_id": "comfyui-krea2edit",
+      "ver": "86f886dac23013d88996e3a2e99093ba44d322fb"
     }
   }
 }
