@@ -32,7 +32,7 @@ DEFAULT_JSON_PATH = PROJECT_ROOT / "luna.json"
 JSON_WORKFLOW_PATH = Path(os.getenv("COMFYUI_JSON_PATH", str(DEFAULT_JSON_PATH)))
 
 # モデル定義
-MODEL_LUNA_FAMILY = "krea2Cocoamixzero_v20.safetensors"
+MODEL_LUNA_FAMILY = "krea2_anime_tuned_turbo_fp8_scaled.safetensorss"
 MODEL_HINA_KOHAKU = "moodyCutieMixFreeKrea2_v60_int8.safetensors"
 
 # 各メンバーの固定外見プロンプト（8名完全版）
