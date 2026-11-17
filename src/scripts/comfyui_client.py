@@ -1,3 +1,4 @@
+import time
 import os
 import json
 import re
@@ -7,7 +8,7 @@ import traceback
 import ollama
 from pathlib import Path
 from dotenv import load_dotenv
-
+PROMPT_TO_IMAGE_DELAY_SEC = int(os.getenv("PROMPT_TO_IMAGE_DELAY_SEC", "180"))
 # 1. パスの安全な自動解決
 SCRIPT_DIR = Path(__file__).resolve().parent
 
@@ -254,8 +255,7 @@ def queue_comfyui_generation(prompt_text: str, reference_image_name: str, unet_m
 def generate_image_for_author(author_id: str, tweet_content: str) -> str:
     """
     著者IDに応じたモデル振り分けと参照画像選定を実施。
-    hina/kohaku -> MODEL_HINA_KOHAKU
-    それ以外のメンバー -> MODEL_LUNA_OTHERS
+    プロンプト生成後、GPU安定化のために指定秒数の休憩（クールダウン）を挟んでからComfyUIへ投入する。
     """
     ref_image_name = f"{author_id}.png"
     
@@ -265,10 +265,21 @@ def generate_image_for_author(author_id: str, tweet_content: str) -> str:
     else:
         selected_model = MODEL_LUNA_OTHERS
 
-    # 🎯 著者IDを渡してプロンプトスタイルを正しく分岐
+    # 🎯 著者IDを渡してプロンプトスタイルを正しく分岐（この中でOllamaが動き、VRAM解放される）
     final_prompt = build_edit_prompt_from_tweet(author_id, tweet_content)
 
     print(f"🎨 キャラクター生成準備: {author_id} (参照画像: {ref_image_name} | 指定モデル: {selected_model})")
     print(f"📝 注入プロンプト:\n----------------------------------------\n{final_prompt}\n----------------------------------------")
+
+    # ❄️ プロンプト生成（Ollama）と画像生成（ComfyUI）の間のクールダウン処理
+    if PROMPT_TO_IMAGE_DELAY_SEC > 0:
+        print(f"❄️ [COOLDOWN] GPU/VRAM安定化のため、ComfyUI投入前に {PROMPT_TO_IMAGE_DELAY_SEC} 秒待機します...")
+        try:
+            for remaining in range(PROMPT_TO_IMAGE_DELAY_SEC, 0, -10):
+                print(f"⏳ 画像生成ジョブ投入まであと: {remaining} 秒...")
+                time.sleep(min(10, remaining))
+        except KeyboardInterrupt:
+            print("\n⚠️ [ABORT] 待機シーケンスが手動割り込みされました。処理を中断します。")
+            raise
 
     return queue_comfyui_generation(final_prompt, reference_image_name=ref_image_name, unet_model_name=selected_model)

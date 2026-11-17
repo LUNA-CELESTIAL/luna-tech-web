@@ -5,6 +5,7 @@ import shutil
 import urllib.request
 import urllib.parse
 import traceback
+import importlib.util
 from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
@@ -13,12 +14,23 @@ from dotenv import load_dotenv
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent.parent if SCRIPT_DIR.name == "scripts" else SCRIPT_DIR.parent
 
-# PROJECT_ROOT 直下、または src/ 直下の .env を自律検索してロード
 env_path = PROJECT_ROOT / ".env"
 if not env_path.exists():
     env_path = PROJECT_ROOT / "src" / ".env"
 
 load_dotenv(dotenv_path=env_path, override=True)
+
+# 共通GPU交通整理モジュールのロード (.env ロード後に実行してパスを厳密取得)
+SHARED_STATE_DIR = Path(os.getenv("SHARED_STATE_DIR", "/home/lulu/luna/luna_docker/shared_state"))
+gpu_guard_path = SHARED_STATE_DIR / "gpu_guard.py"
+
+if not gpu_guard_path.exists():
+    raise FileNotFoundError(f"共通交通整理モジュールが見つかりません: {gpu_guard_path}")
+
+spec = importlib.util.spec_from_file_location("gpu_guard", str(gpu_guard_path))
+gpu_guard = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(gpu_guard)
+acquire_gpu_lock = gpu_guard.acquire_gpu_lock
 
 # 設定値（環境変数優先・安全なフォールバック付き）
 COMFYUI_HOST = os.getenv("COMFYUI_HOST", "127.0.0.1:8188")
@@ -27,10 +39,9 @@ WEB_PUBLIC_IMAGE_DIR = Path(os.getenv("WEB_PUBLIC_IMAGE_DIR", str(PROJECT_ROOT /
 PHIED_JSON_PATH = PROJECT_ROOT / "src" / "data" / "phied.json"
 
 # 🎬 モード制御フラグ (ENABLE_VIDEO_GEN 単一スイッチで制御)
-# True  : パターンA（画像生成スキップ ＋ input/固定画像から5秒動画生成）
-# False : パターンC（画像生成のみ ＋ 動画生成OFF）
 ENABLE_VIDEO_GEN = os.getenv("ENABLE_VIDEO_GEN", "false").lower() == "true"
-COOLING_INTERVAL_SEC = int(os.getenv("COOLING_INTERVAL_SEC", "120")) # 120秒GPUプレ冷却
+COOLING_INTERVAL_SEC = int(os.getenv("COOLING_INTERVAL_SEC", "120"))
+IMAGE_TIMEOUT_SEC = int(os.getenv("IMAGE_TIMEOUT_SEC", "300"))
 
 print(f"📁 [.env ロード完了] 読み込み先: {env_path}")
 print(f"⚙️ [パイプラインモード] {'【パターンA】動画モード (画像スキップ＋固定画像動画化)' if ENABLE_VIDEO_GEN else '【パターンC】画像モード (新画像生成＋動画OFF)'}")
@@ -57,29 +68,44 @@ def ensure_directories_and_files():
         traceback.print_exc()
         raise e
 
-def wait_for_comfyui_image(prompt_id: str, timeout_sec: int = 120) -> Path | None:
-    """ComfyUI API (/history/{prompt_id}) をポーリングして画像生成完了を監視"""
+def wait_for_comfyui_image(prompt_id: str, timeout_sec: int = IMAGE_TIMEOUT_SEC) -> Path | None:
+    """ComfyUI API (/history/{prompt_id}) をポーリングして画像生成完了・エラーを監視"""
     start_time = time.time()
-    print(f"⏳ ComfyUI の画像生成完了を監視中 (Prompt ID: {prompt_id})...")
+    last_log_sec = 0
+    print(f"⏳ ComfyUI の画像生成完了を監視中 (Prompt ID: {prompt_id} | 最大待機: {timeout_sec}秒)...")
 
     while time.time() - start_time < timeout_sec:
+        elapsed = int(time.time() - start_time)
         try:
             req = urllib.request.Request(f"http://{COMFYUI_HOST}/history/{prompt_id}")
-            with urllib.request.urlopen(req) as response:
+            with urllib.request.urlopen(req, timeout=5) as response:
                 history_data = json.loads(response.read().decode('utf-8'))
 
             if prompt_id in history_data:
-                outputs = history_data[prompt_id].get("outputs", {})
+                prompt_info = history_data[prompt_id]
+                status = prompt_info.get("status", {})
+                if status.get("status_str") == "error":
+                    print(f"❌ [ComfyUI Error] ジョブ実行中にComfyUI側でエラー発生: {status.get('messages')}")
+                    return None
+
+                outputs = prompt_info.get("outputs", {})
                 for node_id, node_output in outputs.items():
                     if "images" in node_output and len(node_output["images"]) > 0:
-                        filename = node_output["images"][0]["filename"]
-                        generated_image_path = COMFYUI_OUTPUT_DIR / filename
+                        img_info = node_output["images"][0]
+                        filename = img_info["filename"]
+                        subfolder = img_info.get("subfolder", "")
+                        generated_image_path = (COMFYUI_OUTPUT_DIR / subfolder / filename) if subfolder else (COMFYUI_OUTPUT_DIR / filename)
                         
                         if generated_image_path.exists():
-                            print(f"🎉 画像生成完了を検知: {generated_image_path}")
+                            print(f"🎉 画像生成完了を検知 ({elapsed}秒): {generated_image_path}")
                             return generated_image_path
-        except Exception:
-            pass
+        except Exception as e:
+            if elapsed - last_log_sec >= 30:
+                print(f"⚠️ ポーリング一時通信エラー ({elapsed}秒経過): {e}")
+
+        if elapsed - last_log_sec >= 30:
+            print(f"⏳ 生成待機中... ({elapsed}/{timeout_sec}秒経過)")
+            last_log_sec = elapsed
 
         time.sleep(3)
 
@@ -91,112 +117,114 @@ def run_pipeline(force_video: bool = None):
     print("🚀 === 自律投稿・マルチメディア生成・リプライ一気通貫パイプライン開始 ===")
 
     ensure_directories_and_files()
-
-    # 引数指定があれば優先、無ければ .env の ENABLE_VIDEO_GEN を採用
     is_video_mode = force_video if force_video is not None else ENABLE_VIDEO_GEN
 
     try:
-        # Step 1: 記事テキストの自動生成
-        print("\n--- [Step 1/6] 記事テキスト生成 ---")
-        post_data, author_id, agent_name = generate_post_data()
-        print(f"📝 著者: {agent_name} ({author_id}) | タイプ: {post_data.get('type')} | タイトル: {post_data['title']}")
+        # 🚦 Step 1〜6 の全工程を GPU ロックで完全保護する
+        with acquire_gpu_lock(
+            caller_name="LunaTechWeb",
+            comfyui_url=COMFYUI_HOST,
+            respect_prime_time=True,
+            cooldown_after=30
+        ):
+            # Step 1: 記事テキストの自動生成
+            print("\n--- [Step 1/6] 記事テキスト生成 ---")
+            post_data, author_id, agent_name = generate_post_data()
+            print(f"📝 著者: {agent_name} ({author_id}) | タイプ: {post_data.get('type')} | タイトル: {post_data['title']}")
 
-        now = datetime.now()
-        commit_id = f"auto-{author_id}-{now.strftime('%Y%m%d%H%M%S')}"
+            now = datetime.now()
+            commit_id = f"auto-{author_id}-{now.strftime('%Y%m%d%H%M%S')}"
 
-        new_entry = {
-            "commitId": commit_id,
-            "type": post_data.get("type", "DAILY"),
-            "source": post_data.get("source", ""),
-            "date": now.strftime("%Y.%m.%d"),
-            "status": "ONLINE",
-            "author": author_id,
-            "authorName": agent_name,
-            "timestamp": now.strftime("%Y.%m.%d %H:%M"),
-            "title": post_data["title"],
-            "content": post_data["content"],
-            "description": post_data["description"],
-            "tags": post_data["tags"],
-            "insights": post_data["insights"]
-        }
+            new_entry = {
+                "commitId": commit_id,
+                "type": post_data.get("type", "DAILY"),
+                "source": post_data.get("source", ""),
+                "date": now.strftime("%Y.%m.%d"),
+                "status": "ONLINE",
+                "author": author_id,
+                "authorName": agent_name,
+                "timestamp": now.strftime("%Y.%m.%d %H:%M"),
+                "title": post_data["title"],
+                "content": post_data["content"],
+                "description": post_data["description"],
+                "tags": post_data["tags"],
+                "insights": post_data["insights"]
+            }
 
-        # Step 2 & 3 & 4: モード（is_video_mode）による明確な分岐
-        if is_video_mode:
-            # 🎬 【パターンA】動画モード（新画像生成をスキップし、ComfyUI input/ の固定画像から動画生成）
-            print("\n--- [Step 2&3/6] ⏩ 画像生成スキップ: ComfyUI input/ の固定参照画像を使用します ---")
-
-            print(f"\n--- [Step 4/6] 🎬 [{author_id.upper()}] 5秒アンビエント動画生成シーケンス開始 ---")
-            
-            # 1. Ollamaによる「無言・音楽＆モーション」プロンプトの自律生成
-            print("🧠 [4a] Ollamaによる空間演出・アンビエントプロンプト構築中...")
-            dynamic_prompt = generate_dynamic_video_prompt(author_id, post_data["title"], post_data["content"])
-
-            # 2. 120秒 GPU プレ冷却
-            print(f"❄️ [4b] {COOLING_INTERVAL_SEC}秒間GPUプレ冷却ガード発動（レンダリング直前の温度調整）...")
-            try:
-                for remaining in range(COOLING_INTERVAL_SEC, 0, -10):
-                    print(f"⏳ 動画レンダリング開始まであと: {remaining} 秒...")
-                    time.sleep(10)
-            except KeyboardInterrupt:
-                print("\n⚠️ [ABORT] 冷却シーケンスが手動割り込みされました。動画生成をスキップします。")
-                is_video_mode = False
-
+            # Step 2 & 3 & 4: モード（is_video_mode）による明確な分岐
             if is_video_mode:
-                print(f"🔥 [4c] 状態クリア！ComfyUI input/{author_id}.png を参照して MiniMax H3 レンダリング開始...")
-                video_src = generate_h3_video_for_post(new_entry, dynamic_prompt=dynamic_prompt)
+                # 🎬 【パターンA】動画モード
+                print("\n--- [Step 2&3/6] ⏩ 画像生成スキップ: ComfyUI input/ の固定参照画像を使用します ---")
+                print(f"\n--- [Step 4/6] 🎬 [{author_id.upper()}] 5秒アンビエント動画生成シーケンス開始 ---")
                 
-                if video_src:
-                    new_entry["videoSrc"] = video_src
-                    print(f"✨ 動画生成＆配置成功: {video_src}")
-                else:
-                    print("⚠️ [WARN] 動画生成に失敗したため、動画なしで投稿処理を継続します。")
+                print("🧠 [4a] Ollamaによる空間演出・アンビエントプロンプト構築中...")
+                dynamic_prompt = generate_dynamic_video_prompt(author_id, post_data["title"], post_data["content"])
 
-        else:
-            # 🎨 【パターンC】画像モード（新しく挿絵画像を生成し、動画はスキップ）
-            print("\n--- [Step 2/6] キャラクター別プロンプト抽出 ＆ ComfyUI 画像Job 投入 ---")
-            prompt_id = generate_image_for_author(author_id, post_data["content"])
-            if not prompt_id:
-                raise RuntimeError("ComfyUI への画像Job 投入に失敗しました。")
+                print(f"❄️ [4b] {COOLING_INTERVAL_SEC}秒間GPUプレ冷却ガード発動（レンダリング直前の温度調整）...")
+                try:
+                    for remaining in range(COOLING_INTERVAL_SEC, 0, -10):
+                        print(f"⏳ 動画レンダリング開始まであと: {remaining} 秒...")
+                        time.sleep(10)
+                except KeyboardInterrupt:
+                    print("\n⚠️ [ABORT] 冷却シーケンスが手動割り込みされました。動画生成をスキップします。")
+                    is_video_mode = False
 
-            print("\n--- [Step 3/6] 画像生成完了の待機 ＆ 公開ディレクトリへの配置 ---")
-            generated_image = wait_for_comfyui_image(prompt_id)
-            if not generated_image:
-                raise RuntimeError("画像の生成確認が取れませんでした。")
+                if is_video_mode:
+                    print(f"🔥 [4c] 状態クリア！ComfyUI input/{author_id}.png を参照して MiniMax H3 レンダリング開始...")
+                    video_src = generate_h3_video_for_post(new_entry, dynamic_prompt=dynamic_prompt)
+                    
+                    if video_src:
+                        new_entry["videoSrc"] = video_src
+                        print(f"✨ 動画生成＆配置成功: {video_src}")
+                    else:
+                        print("⚠️ [WARN] 動画生成に失敗したため、動画なしで投稿処理を継続します。")
 
-            image_filename = f"phied_{author_id}_{now.strftime('%Y%m%d%H%M%S')}.png"
-            target_image_path = WEB_PUBLIC_IMAGE_DIR / image_filename
+            else:
+                # 🎨 【パターンC】画像モード
+                print("\n--- [Step 2/6] キャラクター別プロンプト抽出 ＆ ComfyUI 画像Job 投入 ---")
+                prompt_id = generate_image_for_author(author_id, post_data["content"])
+                if not prompt_id:
+                    raise RuntimeError("ComfyUI への画像Job 投入に失敗しました。")
 
-            shutil.copy(generated_image, target_image_path)
-            print(f"🚚 画像を配置完了: {target_image_path}")
+                print("\n--- [Step 3/6] 画像生成完了の待機 ＆ 公開ディレクトリへの配置 ---")
+                generated_image = wait_for_comfyui_image(prompt_id)
+                if not generated_image:
+                    raise RuntimeError("画像の生成確認が取れませんでした。")
 
-            new_entry["imageSrc"] = f"/images/phied/{image_filename}"
+                image_filename = f"phied_{author_id}_{now.strftime('%Y%m%d%H%M%S')}.png"
+                target_image_path = WEB_PUBLIC_IMAGE_DIR / image_filename
 
-            print("\n--- [Step 4/6] ⏩ 動画生成スキップ（ENABLE_VIDEO_GEN=false） ---")
+                shutil.copy(generated_image, target_image_path)
+                print(f"🚚 画像を配置完了: {target_image_path}")
 
-        # Step 5: 親投稿を phied.json に先頭追加して保存
-        print("\n--- [Step 5/6] 親投稿の phied.json への保存 ---")
-        with open(PHIED_JSON_PATH, "r", encoding="utf-8") as f:
-            try:
-                logs = json.load(f)
-            except json.JSONDecodeError:
-                print(f"[WARN] {PHIED_JSON_PATH} の破損を検知したためリセットします。")
-                logs = []
+                new_entry["imageSrc"] = f"/images/phied/{image_filename}"
 
-        if "replyPatternHint" in post_data:
-            new_entry["replyPatternHint"] = post_data["replyPatternHint"]
+                print("\n--- [Step 4/6] ⏩ 動画生成スキップ（ENABLE_VIDEO_GEN=false） ---")
 
-        logs.insert(0, new_entry)
+            # Step 5: 親投稿を phied.json に先頭追加して保存
+            print("\n--- [Step 5/6] 親投稿の phied.json への保存 ---")
+            with open(PHIED_JSON_PATH, "r", encoding="utf-8") as f:
+                try:
+                    logs = json.load(f)
+                except json.JSONDecodeError:
+                    print(f"[WARN] {PHIED_JSON_PATH} の破損を検知したためリセットします。")
+                    logs = []
 
-        with open(PHIED_JSON_PATH, "w", encoding="utf-8") as f:
-            json.dump(logs, f, ensure_ascii=False, indent=2)
+            if "replyPatternHint" in post_data:
+                new_entry["replyPatternHint"] = post_data["replyPatternHint"]
 
-        print(f"✨ 親投稿保存完了! (タイトル: {new_entry['title']})")
+            logs.insert(0, new_entry)
 
-        # Step 6: 自律会話ラリー・リプライの生成 ＆ 上書き保存
-        print("\n--- [Step 6/6] 自律会話ラリー・リプライの生成 ＆ 上書き保存 ---")
-        process_auto_reply()
+            with open(PHIED_JSON_PATH, "w", encoding="utf-8") as f:
+                json.dump(logs, f, ensure_ascii=False, indent=2)
 
-        print("\n🎉 === 全パイプライン正常完了！本番投稿が更新されました ===")
+            print(f"✨ 親投稿保存完了! (タイトル: {new_entry['title']})")
+
+            # Step 6: 自律会話ラリー・リプライの生成 ＆ 上書き保存
+            print("\n--- [Step 6/6] 自律会話ラリー・リプライの生成 ＆ 上書き保存 ---")
+            process_auto_reply()
+
+            print("\n🎉 === 全パイプライン正常完了！本番投稿が更新されました ===")
 
     except Exception as e:
         print("\n❌ パイプライン実行中にエラーが発生しました:")
