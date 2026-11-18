@@ -36,7 +36,7 @@ JSON_WORKFLOW_PATH = Path(os.getenv("COMFYUI_JSON_PATH", str(DEFAULT_JSON_PATH))
 MODEL_HINA_KOHAKU = "moodyCutieMixFreeKrea2_v60_int8.safetensors"
 MODEL_LUNA_OTHERS = "krea2_anime_tuned_turbo_fp8_scaled.safetensors"
 
-def unload_ollama_vram(model_name: str = "muse-unce:latest"):
+def unload_ollama_vram(model_name: str = "Qwen3.8-27B:latest"):
     """
     🧹 [VRAM最適化] OllamaモデルをVRAMから即座に破棄（アンロード）する。
     """
@@ -114,7 +114,7 @@ def generate_scene_and_action_json(tweet_text: str, is_realistic: bool) -> dict:
     )
 
     try:
-        response = ollama.generate(model="muse-unce:latest", prompt=system_prompt)
+        response = ollama.generate(model="Qwen3.8-27B:latest", prompt=system_prompt)
         raw_text = response.get('response', '').strip()
         parsed_result = parse_llm_json_safely(raw_text)
         return parsed_result
@@ -133,7 +133,7 @@ def generate_scene_and_action_json(tweet_text: str, is_realistic: bool) -> dict:
                 "environment_and_situation": "bright cozy room with soft pastel tones, gentle warm lighting, clean cute background"
             }
     finally:
-        unload_ollama_vram("muse-unce:latest")
+        unload_ollama_vram("Qwen3.8-27B:latest")
 
 
 def build_edit_prompt_from_tweet(author_id: str, tweet_text: str) -> str:
