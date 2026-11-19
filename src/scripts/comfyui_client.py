@@ -34,7 +34,7 @@ JSON_WORKFLOW_PATH = Path(os.getenv("COMFYUI_JSON_PATH", str(DEFAULT_JSON_PATH))
 
 # 🎯 モデル定義（メンバーごとに適用するモデルを切り替え）
 MODEL_HINA_KOHAKU = "moodyCutieMixFreeKrea2_v60_int8.safetensors"
-MODEL_LUNA_OTHERS = "krea2_anime_tuned_turbo_fp8_scaled.safetensors"
+MODEL_LUNA_OTHERS = "krea2Cocoamix_v004beta.safetensors"
 
 def unload_ollama_vram(model_name: str = "Qwen3.8-27B:latest"):
     """

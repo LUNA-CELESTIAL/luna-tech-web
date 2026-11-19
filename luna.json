@@ -17,7 +17,7 @@
   "53": {
     "inputs": {
       "seed": 246905953401182,
-      "steps": 12,
+      "steps": 14,
       "cfg": 2.0,
       "sampler_name": "euler",
       "scheduler": "simple",
