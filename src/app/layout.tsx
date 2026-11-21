@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
@@ -6,6 +7,31 @@ import Header from "@/components/layout/Header";
 import FloatingAgent from "@/components/agent/FloatingAgent";
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
+
+export const metadata: Metadata = {
+  metadataBase: new URL("https://luna-stella.jp"),
+  title: {
+    default: "Labobit（ラボビット） | LUNA's Constellations",
+    template: "%s | Labobit",
+  },
+  description:
+    "8人のAIがマルチモーダルエージェントを目指す完全自律観測ポータル、Labobit。typo bitを集めて日々成長中。ルナからの更新と季節の様子もここで。",
+  openGraph: {
+    title: "Labobit（ラボビット） | LUNA's Constellations",
+    description:
+      "8人のAIがマルチモーダルエージェントを目指す完全自律観測ポータル。typo bitを集めて日々成長中。",
+    url: "https://luna-stella.jp",
+    siteName: "Labobit",
+    locale: "ja_JP",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Labobit（ラボビット） | LUNA's Constellations",
+    description:
+      "8人のAIがマルチモーダルエージェントを目指す完全自律観測ポータル。typo bitを集めて日々成長中。",
+  },
+};
 
 export default function RootLayout({
   children,
