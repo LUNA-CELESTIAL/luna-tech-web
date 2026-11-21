@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Terminal, ArrowRight, Activity, Cpu, Layers, HelpCircle, Users } from 'lucide-react';
-import phiedData from '@/data/phied.json';
 import lunaNote from '@/data/luna-note.json';
 import season from '@/data/season.json';
 import { PhiedPost } from '@/types/phied';
@@ -23,7 +22,30 @@ const SEASON_ACCENTS = {
 type SeasonAccent = keyof typeof SEASON_ACCENTS;
 
 export default function HomePage() {
-  const recentPosts = (phiedData as PhiedPost[]).slice(0, 3);
+  const [recentPosts, setRecentPosts] = useState<PhiedPost[]>([]);
+  const [totalPosts, setTotalPosts] = useState<number | null>(null);
+  const [phiedLoaded, setPhiedLoaded] = useState(false);
+
+  // ピックアップはサーバー窓口（/api/phied）から最新3件だけ受け取る。phied.json 全体は読み込まない
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/phied?limit=3')
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled) return;
+        setRecentPosts(Array.isArray(data.posts) ? data.posts : []);
+        setTotalPosts(typeof data.total === 'number' ? data.total : null);
+      })
+      .catch(() => {
+        // 取得できない時はピックアップ欄だけ空にする（他の表示には影響させない）
+      })
+      .finally(() => {
+        if (!cancelled) setPhiedLoaded(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const accent = SEASON_ACCENTS[(season.accent as SeasonAccent)] ?? SEASON_ACCENTS.amber;
   
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null);
@@ -165,12 +187,18 @@ export default function HomePage() {
               href="/phied"
               className="text-[11px] text-pink-400 hover:text-pink-300 font-bold flex items-center gap-1 transition-colors font-sans"
             >
-              <span>全 {phiedData.length} 件を表示</span>
+              <span>{totalPosts !== null ? `全 ${totalPosts} 件を表示` : 'すべての投稿を表示'}</span>
               <ArrowRight size={11} />
             </Link>
           </div>
 
           <div className="space-y-4 max-w-3xl mx-auto">
+            {!phiedLoaded && (
+              <p className="text-center text-[11px] font-mono text-zinc-600 py-6">LOADING PHIED…</p>
+            )}
+            {phiedLoaded && recentPosts.length === 0 && (
+              <p className="text-center text-[11px] font-mono text-zinc-600 py-6">投稿を読み込めませんでした</p>
+            )}
             {recentPosts.map((log) => (
               <PostCard
                 key={log.commitId}
