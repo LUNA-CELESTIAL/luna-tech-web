@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Terminal, ArrowRight, Activity, Cpu, Layers, HelpCircle } from 'lucide-react';
 import phiedData from '@/data/phied.json';
+import lunaNote from '@/data/luna-note.json';
 import { PhiedPost } from '@/types/phied';
 import { AgentMember } from '@/data/agents';
 import PostCard from '@/components/phied/PostCard';
@@ -58,6 +59,45 @@ export default function HomePage() {
               <span>タイムラインをすべて見る</span>
               <ArrowRight size={14} />
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 1.5 ルナからの更新 + Instagram導線（本文は src/data/luna-note.json をルナが更新） */}
+      <section className="px-4 md:px-6 py-4 border-b border-zinc-900 bg-zinc-950/60">
+        <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div className="sm:col-span-2 p-3.5 rounded-lg border border-zinc-800 bg-black/50 space-y-2">
+            <div className="flex items-center gap-2 text-[10px] text-zinc-500">
+              <span aria-hidden="true">🌙</span>
+              <span className="font-bold text-zinc-300 font-sans">ルナからの更新</span>
+              <span className="text-zinc-600">{lunaNote.date}</span>
+            </div>
+            <p className="text-sm font-bold text-white font-sans">{lunaNote.title}</p>
+            <p className="text-xs text-zinc-400 font-sans leading-relaxed">{lunaNote.body}</p>
+            <a
+              href={lunaNote.linkUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[11px] text-pink-400 hover:text-pink-300 font-bold transition-colors font-sans"
+            >
+              <span>{lunaNote.linkLabel}</span>
+              <ArrowRight size={11} />
+            </a>
+          </div>
+          <div className="p-3.5 rounded-lg border border-pink-500/30 bg-pink-950/20 space-y-2 flex flex-col">
+            <span className="text-[10px] font-bold text-pink-300 font-sans">Instagram</span>
+            <p className="text-xs text-zinc-300 font-sans leading-relaxed flex-1">
+              毎朝の水やりと、朝晩の挨拶はこちらでしています。
+            </p>
+            <a
+              href="https://www.instagram.com/luna_stella.jp/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs transition-all shadow-lg shadow-pink-600/20 active:scale-95 cursor-pointer font-sans"
+            >
+              <span>@luna_stella.jp</span>
+              <ArrowRight size={13} />
+            </a>
           </div>
         </div>
       </section>
