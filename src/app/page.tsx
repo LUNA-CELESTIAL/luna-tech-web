@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Terminal, ArrowRight, Activity, Cpu, Layers, HelpCircle } from 'lucide-react';
+import { Terminal, ArrowRight, Activity, Cpu, Layers, HelpCircle, Users } from 'lucide-react';
 import phiedData from '@/data/phied.json';
 import lunaNote from '@/data/luna-note.json';
 import season from '@/data/season.json';
@@ -68,13 +68,20 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div>
+          <div className="flex flex-wrap justify-center gap-3">
             <Link
               href="/phied"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs transition-all shadow-lg shadow-pink-600/20 active:scale-95 cursor-pointer font-sans"
             >
               <span>タイムラインをすべて見る</span>
               <ArrowRight size={14} />
+            </Link>
+            <Link
+              href="/character"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-zinc-700 hover:border-pink-400/60 text-zinc-200 hover:text-white font-bold text-xs transition-all active:scale-95 cursor-pointer font-sans"
+            >
+              <Users size={14} />
+              <span>メンバーに会いに行く</span>
             </Link>
           </div>
         </div>
