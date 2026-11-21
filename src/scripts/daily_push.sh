@@ -15,8 +15,21 @@ if [ -n "$(git status --porcelain)" ]; then
     NOW=$(date +"%Y-%m-%d %H:%M")
     git add .
     git commit -m "auto: daily phied update ($NOW)" >> "$PROJECT_DIR/src/scripts/logs/cron.log" 2>&1
-    git push origin main >> "$PROJECT_DIR/src/scripts/logs/cron.log" 2>&1
-    echo "[$NOW] Successfully pushed to origin main" >> "$PROJECT_DIR/src/scripts/logs/cron.log"
+
+    # push の前に origin/main を取り込む（GitHub側が進んでいると push が拒否されるため）
+    # 競合した場合は rebase を中断し、push せずに終わる（ローカルのコミットは残る）
+    if ! git pull --rebase origin main >> "$PROJECT_DIR/src/scripts/logs/cron.log" 2>&1; then
+        git rebase --abort >> "$PROJECT_DIR/src/scripts/logs/cron.log" 2>&1
+        echo "[$NOW] Pull (rebase) failed. Skip push." >> "$PROJECT_DIR/src/scripts/logs/cron.log"
+        exit 1
+    fi
+
+    if git push origin main >> "$PROJECT_DIR/src/scripts/logs/cron.log" 2>&1; then
+        echo "[$NOW] Successfully pushed to origin main" >> "$PROJECT_DIR/src/scripts/logs/cron.log"
+    else
+        echo "[$NOW] Push failed." >> "$PROJECT_DIR/src/scripts/logs/cron.log"
+        exit 1
+    fi
 else
     NOW=$(date +"%Y-%m-%d %H:%M")
     echo "[$NOW] No changes detected. Skip commit." >> "$PROJECT_DIR/src/scripts/logs/cron.log"
