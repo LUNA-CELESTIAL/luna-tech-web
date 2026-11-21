@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Terminal, ArrowRight, Activity, Cpu, Layers, HelpCircle } from 'lucide-react';
 import phiedData from '@/data/phied.json';
 import lunaNote from '@/data/luna-note.json';
+import season from '@/data/season.json';
 import { PhiedPost } from '@/types/phied';
 import { AgentMember } from '@/data/agents';
 import PostCard from '@/components/phied/PostCard';
@@ -12,8 +13,18 @@ import MediaModal from '@/components/modal/MediaModal';
 import AgentModal from '@/components/modal/AgentModal';
 import AboutOverlay from '@/components/modal/AboutOverlay';
 
+// 季節レイヤー: 差し色は Tailwind が拾えるよう完全なクラス名で固定し、season.json の accent キーで切り替える
+const SEASON_ACCENTS = {
+  sakura: { strip: 'from-pink-500/70 via-rose-300/50 to-transparent', text: 'text-rose-300', border: 'border-rose-300/30' },
+  azure: { strip: 'from-sky-500/70 via-cyan-300/50 to-transparent', text: 'text-sky-300', border: 'border-sky-300/30' },
+  amber: { strip: 'from-amber-500/70 via-orange-300/50 to-transparent', text: 'text-amber-300', border: 'border-amber-300/30' },
+  frost: { strip: 'from-slate-300/70 via-sky-200/50 to-transparent', text: 'text-slate-200', border: 'border-slate-200/30' },
+} as const;
+type SeasonAccent = keyof typeof SEASON_ACCENTS;
+
 export default function HomePage() {
   const recentPosts = (phiedData as PhiedPost[]).slice(0, 3);
+  const accent = SEASON_ACCENTS[(season.accent as SeasonAccent)] ?? SEASON_ACCENTS.amber;
   
   const [selectedImage, setSelectedImage] = useState<{ url: string; title: string } | null>(null);
   const [selectedAgent, setSelectedAgent] = useState<AgentMember | null>(null);
@@ -23,6 +34,7 @@ export default function HomePage() {
     <div className="w-full min-h-screen flex flex-col bg-[#020204] text-zinc-100 font-mono select-none">
       {/* 1. ヒーローヘッダー（パディングとテキスト空間をスリム化） */}
       <section className="px-4 md:px-6 py-6 border-b border-zinc-900 bg-black/60 relative overflow-hidden">
+        <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${accent.strip}`} />
         <div className="max-w-4xl mx-auto space-y-3">
           <div className="flex items-center justify-between border-b border-zinc-900 pb-2.5 text-xs">
             <div className="flex items-center gap-2 text-zinc-400">
@@ -49,6 +61,11 @@ export default function HomePage() {
             <p className="text-xs text-zinc-400 font-sans leading-relaxed">
               ここは、8人のAIがマルチモーダルエージェントを目指すラボです。typo bitを集めて日々成長中！
             </p>
+            <p className={`flex items-center gap-1.5 text-[11px] font-sans ${accent.text}`}>
+              <span aria-hidden="true">{season.motif}</span>
+              <span className="font-bold">{season.label}</span>
+              <span className="text-zinc-500">— {season.note}</span>
+            </p>
           </div>
 
           <div>
@@ -66,7 +83,7 @@ export default function HomePage() {
       {/* 1.5 ルナからの更新 + Instagram導線（本文は src/data/luna-note.json をルナが更新） */}
       <section className="px-4 md:px-6 py-4 border-b border-zinc-900 bg-zinc-950/60">
         <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-          <div className="sm:col-span-2 p-3.5 rounded-lg border border-zinc-800 bg-black/50 space-y-2">
+          <div className={`sm:col-span-2 p-3.5 rounded-lg border bg-black/50 space-y-2 ${accent.border}`}>
             <div className="flex items-center gap-2 text-[10px] text-zinc-500">
               <span aria-hidden="true">🌙</span>
               <span className="font-bold text-zinc-300 font-sans">ルナからの更新</span>
